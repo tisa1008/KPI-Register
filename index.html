@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>放射師 KPI 申報表</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        .dynamic-section {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        /* 柔和的滾動條 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f0f4f3; }
+        ::-webkit-scrollbar-thumb { background: #b8c9c3; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #96adA5; }
+        
+        /* 自訂護眼色系 */
+        .theme-bg { background-color: #f0f4f3; }
+        .theme-card { background-color: #ffffff; }
+        .theme-text-main { color: #2d4a41; }
+        .theme-text-sub { color: #5c7a6f; }
+        .theme-input-bg { background-color: #fbfcfc; }
+        .theme-input-border { border-color: #dce5e2; }
+        .theme-primary { background-color: #528a7a; }
+        .theme-primary-hover:hover { background-color: #437365; }
+        .theme-ring:focus { box-shadow: 0 0 0 2px #8ab8a8; border-color: #528a7a; }
+    </style>
+</head>
+<body class="theme-bg p-4 md:p-8 min-h-screen overflow-y-auto text-[#4a5568]">
+
+    <div class="max-w-lg mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-10">
+        
+        <!-- ★ 標題列：左側標題 + 右側「查詢申報紀錄」按鈕 -->
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold theme-text-main tracking-wide">放射師 KPI 申報表</h2>
+            <button type="button" id="btnOpenQueryModal" 
+                    class="flex items-center text-sm bg-[#eef5f2] hover:bg-[#dfeee8] text-[#528a7a] font-medium px-3.5 py-2 rounded-xl transition-colors whitespace-nowrap">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path></svg>
+                查詢紀錄
+            </button>
+        </div>
+
+        <form id="kpiForm" class="space-y-6">
+            
+            <!-- 1. 員編與姓名 -->
+            <div>
+                <label class="block text-sm font-medium theme-text-sub mb-1.5">員工編號 <span class="text-[#c95d5d]">*</span></label>
+                <input type="text" id="empId" name="empId" required placeholder="請輸入 5 碼員編" 
+                       class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors">
+                
+                <div id="nameDisplayBox" class="hidden mt-2 p-3 bg-[#eef5f2] theme-text-main rounded-xl border border-[#d3e3dc] flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span class="font-medium">姓名：</span>
+                    <span id="empName" class="ml-1 font-bold"></span>
+                </div>
+                
+                <p id="empError" class="text-[#c95d5d] text-sm mt-2 hidden font-medium flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    員編錯誤，請重新輸入。
+                </p>
+            </div>
+
+            <!-- 2. 日期選擇 -->
+            <div>
+                <label class="block text-sm font-medium theme-text-sub mb-1.5">日期 <span class="text-[#c95d5d]">*</span></label>
+                <input type="date" id="workDate" name="workDate" required 
+                       class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+            </div>
+
+            <!-- 3. 班別選擇 -->
+            <div>
+                <label class="block text-sm font-medium theme-text-sub mb-1.5">班別 <span class="text-[#c95d5d]">*</span></label>
+                <select id="workShift" name="workShift" required class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+                    <option value="" disabled selected>請選擇班別</option>
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                    <option value="17-21">17-21</option>
+                    <option value="8-21">8-21</option>
+                    <option value="B.D">B.D</option>
+                    <option value="G">G</option>
+                    <option value="10-12">10-12</option>
+                    <option value="10-17">10-17</option>
+                </select>
+            </div>
+
+            <!-- 4. 工作類別 -->
+            <div>
+                <label class="block text-sm font-medium theme-text-sub mb-1.5">工作類別 <span class="text-[#c95d5d]">*</span></label>
+                <select id="category" name="category" required class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+                    <option value="" disabled selected>請選擇工作類別</option>
+                    <option value="第二人力 (20點/時)">第二人力 (20點/時)</option>
+                    <option value="支援 (20點/時)">支援 (20點/時)</option>
+                    <option value="行政公務 (20點/時)">行政公務 (20點/時)</option>
+                    <option value="教學公務 (20點/時)">教學公務 (20點/時)</option>
+                    <option value="急診機動 (20點/時)">急診機動 (20點/時)</option>
+                    <option value="臨床受訓 (15點/時)">臨床受訓 (15點/時)</option>
+                    <option value="臨床教學-在職人員 (5點/時)">臨床教學-在職人員 (5點/時)</option>
+                    <option value="臨床教學-實習生 (2.5點/時)">臨床教學-實習生 (2.5點/時)</option>
+                </select>
+                
+                <div id="categoryDescBox" class="hidden mt-2 p-3 bg-[#fdfbf7] text-[#9c8466] rounded-xl border border-[#f2eadd] text-sm flex items-start">
+                    <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span id="categoryDescText" class="leading-relaxed"></span>
+                </div>
+            </div>
+
+            <!-- 5. 申報時數 -->
+            <div>
+                <label class="block text-sm font-medium theme-text-sub mb-1.5">申報時數 (請以 0.5 為單位) <span class="text-[#c95d5d]">*</span></label>
+                <input type="number" id="hours" name="hours" step="0.5" min="0.5" required placeholder="例如: 0.5, 1.0, 1.5" value="4"
+                       class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+                <p id="hoursError" class="text-[#c95d5d] text-sm mt-2 hidden font-medium flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    時數格式錯誤！請輸入 0.5 的倍數。
+                </p>
+            </div>
+
+            <!-- 動態區塊 A：訓練相關 -->
+            <div id="section-training" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
+                <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫訓練區域 <span class="text-[#c95d5d]">*</span></label>
+                <input type="text" id="trainingArea" name="trainingArea" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+            </div>
+
+            <!-- 動態區塊 B：支援與第二人力 -->
+            <div id="section-support" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
+                <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫支援區域 <span class="text-[#c95d5d]">*</span></label>
+                <input type="text" id="supportArea" name="supportArea" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+            </div>
+
+            <!-- 動態區塊 C：公、教事務 -->
+            <div id="section-official" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
+                <label class="block text-sm font-medium theme-text-sub mb-3">任務來源 <span class="text-[#c95d5d]">*</span></label>
+                <div class="flex space-x-8">
+                    <label class="flex items-center cursor-pointer group">
+                        <input type="radio" name="taskSource" value="主管指派" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
+                        <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">主管指派</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer group">
+                        <input type="radio" name="taskSource" value="自行申請" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
+                        <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">自行申請</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 動態區塊 D：急診機動班別 -->
+            <div id="section-mobile" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
+                <label class="block text-sm font-medium theme-text-sub mb-3">機動班別 <span class="text-[#c95d5d]">*</span></label>
+                <div class="flex space-x-8">
+                    <label class="flex items-center cursor-pointer group">
+                        <input type="radio" name="shift" value="白班" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
+                        <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">白班</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer group">
+                        <input type="radio" name="shift" value="小夜" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
+                        <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">小夜</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer group">
+                        <input type="radio" name="shift" value="大夜" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
+                        <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">大夜</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 6. 其他備註 -->
+            <div>
+                <label class="block text-sm font-medium theme-text-sub mb-1.5">
+                    其他備註 
+                    <span id="notesOptionalText" class="text-gray-400 text-xs ml-1 font-normal">(選填)</span>
+                    <span id="notesRequiredStar" class="text-[#c95d5d] hidden">*</span>
+                </label>
+                <textarea id="notes" name="notes" rows="3" class="w-full border theme-input-border rounded-xl px-4 py-3 outline-none theme-ring theme-input-bg transition-colors resize-none" placeholder="若有其他說明請填寫於此..."></textarea>
+            </div>
+
+            <!-- 送出按鈕與提示訊息 -->
+            <button type="submit" id="submitBtn" class="w-full theme-primary text-white font-medium py-3.5 px-4 rounded-xl theme-primary-hover transition duration-300 shadow-sm tracking-wide text-lg mt-2">
+                送出申報
+            </button>
+            
+            <div id="statusMessage" class="hidden text-center p-3.5 rounded-xl font-medium text-sm"></div>
+
+        </form>
+    </div>
+
+    <!-- ★★★ 成功送出後的小視窗 (Modal) ★★★ -->
+    <div id="successModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all">
+            <div class="text-center mb-8">
+                <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-[#eef5f2] mb-5">
+                    <svg class="h-7 w-7 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold theme-text-main">申報成功</h3>
+                <p class="text-sm text-gray-500 mt-2">感謝您的填寫，資料已安全送出。</p>
+            </div>
+            
+            <div class="flex flex-col space-y-3.5">
+                <button id="btnContinue" class="w-full theme-primary text-white font-medium py-3 rounded-xl theme-primary-hover transition duration-200">
+                    繼續填寫下一筆
+                </button>
+                <button id="btnOutlookQuery" class="w-full bg-white border-2 border-[#528a7a] text-[#528a7a] font-medium py-2.5 rounded-xl hover:bg-[#f4f8f6] transition duration-200">
+                    查詢本月紀錄 (寄至信箱)
+                </button>
+            </div>
+
+            <!-- Outlook 查詢區塊 (預設隱藏) -->
+            <div id="outlookQuerySection" class="hidden mt-6 pt-6 border-t border-gray-100">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium theme-text-sub mb-1.5">員工編號</label>
+                    <input type="text" id="queryEmpId" placeholder="5碼員編" 
+                           class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors">
+                    <p id="queryEmpNameDisplay" class="text-sm text-[#528a7a] mt-1.5 hidden font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span></span>
+                    </p>
+                    <p id="queryEmpError" class="text-[#c95d5d] text-sm mt-1.5 hidden font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        員編錯誤，請重新輸入。
+                    </p>
+                </div>
+                <div class="mb-5">
+                    <label class="block text-sm font-medium theme-text-sub mb-1.5">查詢月份</label>
+                    <input type="month" id="queryMonth" required class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+                </div>
+                <button id="btnSendQuery" class="w-full bg-[#4a7c6b] text-white px-4 py-3 rounded-xl hover:bg-[#3d6658] transition duration-200 font-medium flex justify-center items-center">
+                    送出查詢信件
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ★★★ 新增：獨立的「查詢申報紀錄」彈出視窗 (Modal) ★★★ -->
+    <div id="queryModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold theme-text-main">查詢申報紀錄</h3>
+                <button type="button" id="btnCloseQueryModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mb-6">不需填寫表單，可直接查詢並寄送至您的信箱</p>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium theme-text-sub mb-1.5">員工編號</label>
+                <input type="text" id="mainQueryEmpId" placeholder="5碼員編" 
+                       class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors">
+                <p id="mainQueryEmpNameDisplay" class="text-sm text-[#528a7a] mt-1.5 hidden font-medium flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span></span>
+                </p>
+                <p id="mainQueryEmpError" class="text-[#c95d5d] text-sm mt-1.5 hidden font-medium flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    員編錯誤，請重新輸入。
+                </p>
+            </div>
+            <div class="mb-5">
+                <label class="block text-sm font-medium theme-text-sub mb-1.5">查詢月份</label>
+                <input type="month" id="mainQueryMonth" required class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+            </div>
+            <button id="btnMainSendQuery" class="w-full bg-[#4a7c6b] text-white px-4 py-3 rounded-xl hover:bg-[#3d6658] transition duration-200 font-medium flex justify-center items-center">
+                送出查詢信件
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ★★★ 請替換為您最新部署的 Google Apps Script 網址 ★★★
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpebWiI30_ybYnam19fG9qRrn6tGh4EIS7J-7SxOQkkyio7Dha7Fu97E64ReAzfnXhzw/exec';
+
+        function setDefaultDate() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('workDate').value = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('queryMonth').value = `${yyyy}-${mm}`;
+            const mainQueryMonthEl = document.getElementById('mainQueryMonth');
+            if (mainQueryMonthEl) mainQueryMonthEl.value = `${yyyy}-${mm}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', setDefaultDate);
+
+        const employeeData = {
+            "93564": "陳佩雲", "23551": "歐國棟", "88180": "楊雅雯", "92748": "洪思穎", "18359": "粟文治",
+            "45095": "楊志煒", "82097": "陳億達", "82837": "謝青釗", "94491": "白林益群", "86706": "吳芝瑩",
+            "80551": "林儷寶", "90537": "鐘國書", "91439": "蔡政宏", "97526": "鄭秀媛", "94046": "廖祿正",
+            "48823": "吳騏宇", "66819": "張賢慧", "88923": "劉于平", "82074": "曾健禎", "89676": "夏啟皓",
+            "95205": "吳莉蓉", "91364": "邱豐村", "F0318": "吳佩芸", "F0570": "翁心慈", "88792": "林徑維",
+            "94795": "楊翰", "88392": "吳雅芳", "54067": "郭勝權", "30072": "柯雅芬", "99310": "鍾玉娟",
+            "F0905": "朱琮祺", "45471": "林美花", "95489": "陳長源", "96065": "陳俊宇", "96463": "張立成",
+            "98039": "薛惠文", "F0538": "蔡宜蓁", "94434": "潘洧樊", "84976": "范志龍", "92447": "許桂賢",
+            "F0341": "黃媺涵", "81475": "蔡佳興", "98044": "蓋廉多", "F0537": "徐增承", "F0823": "陳舒妤",
+            "97520": "蔡怡宣", "15377": "江明玲", "F0644": "吳睿真", "95397": "許育誠", "93499": "盧承河",
+            "F1259": "李泓鈺", "F1255": "朱星融"
+        };
+
+        const categoryDescriptions = {
+            "臨床教學-在職人員 (5點/時)": "請在此輸入【臨床教學-在職人員】的相關說明與規範...",
+            "臨床教學-實習生 (2.5點/時)": "請在此輸入【臨床教學-實習生】的相關說明與規範...",
+            "臨床受訓 (15點/時)": "請在此輸入【臨床受訓】的相關說明與規範...",
+            "第二人力 (20點/時)": "請在此輸入【第二人力】的相關說明與規範...",
+            "支援 (20點/時)": "請在此輸入【支援】的相關說明與規範...",
+            "行政公務 (20點/時)": "公共事務：包含會議、行政交辦事項等。若為自行申請，請務必於下方備註欄填寫事由。",
+            "教學公務 (20點/時)": "教學事務：包含教學準備、上課等。若為自行申請，請務必於下方備註欄填寫事由。",
+            "急診機動 (20點/時)": "請在此輸入【急診機動】的相關說明與規範..."
+        };
+
+        const empIdInput = document.getElementById('empId');
+        const nameDisplayBox = document.getElementById('nameDisplayBox');
+        const empNameSpan = document.getElementById('empName');
+        const empError = document.getElementById('empError');
+        let isEmpValid = false;
+
+        empIdInput.addEventListener('input', function() {
+            let id = this.value.trim().toUpperCase();
+            this.value = id; 
+            if (id === '') {
+                nameDisplayBox.classList.add('hidden');
+                empError.classList.add('hidden');
+                isEmpValid = false;
+                return;
+            }
+            if (employeeData[id]) {
+                empNameSpan.textContent = employeeData[id];
+                nameDisplayBox.classList.remove('hidden');
+                empError.classList.add('hidden');
+                isEmpValid = true;
+            } else {
+                nameDisplayBox.classList.add('hidden');
+                empError.classList.remove('hidden');
+                isEmpValid = false;
+            }
+        });
+
+        const hoursInput = document.getElementById('hours');
+        const hoursError = document.getElementById('hoursError');
+        let isHoursValid = true; 
+
+        hoursInput.addEventListener('input', function() {
+            const val = parseFloat(this.value);
+            if (this.value !== '' && (isNaN(val) || val % 0.5 !== 0 || val <= 0)) {
+                hoursError.classList.remove('hidden');
+                isHoursValid = false;
+            } else {
+                hoursError.classList.add('hidden');
+                isHoursValid = true;
+            }
+        });
+
+        const categorySelect = document.getElementById('category');
+        const categoryDescBox = document.getElementById('categoryDescBox');
+        const categoryDescText = document.getElementById('categoryDescText');
+        
+        const sections = {
+            training: document.getElementById('section-training'),
+            support: document.getElementById('section-support'),
+            official: document.getElementById('section-official'),
+            mobile: document.getElementById('section-mobile')
+        };
+
+        function hideAllSections() {
+            Object.values(sections).forEach(sec => {
+                sec.classList.add('hidden');
+                const inputs = sec.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.required = false;
+                    if(input.type === 'radio') input.checked = false;
+                    else input.value = '';
+                });
+            });
+        }
+
+        categorySelect.addEventListener('change', function() {
+            hideAllSections();
+            const val = this.value;
+
+            if (categoryDescriptions[val]) {
+                categoryDescText.textContent = categoryDescriptions[val];
+                categoryDescBox.classList.remove('hidden');
+            } else {
+                categoryDescBox.classList.add('hidden');
+            }
+
+            if (val === '臨床教學-在職人員 (5點/時)' || val === '臨床受訓 (15點/時)' || val === '臨床教學-實習生 (2.5點/時)') {
+                sections.training.classList.remove('hidden');
+                document.getElementById('trainingArea').required = true;
+            } else if (val === '第二人力 (20點/時)' || val === '支援 (20點/時)') {
+                sections.support.classList.remove('hidden');
+                document.getElementById('supportArea').required = true;
+            } else if (val === '行政公務 (20點/時)' || val === '教學公務 (20點/時)') {
+                sections.official.classList.remove('hidden');
+                sections.official.querySelectorAll('input[type="radio"]').forEach(r => r.required = true);
+            } else if (val === '急診機動 (20點/時)') {
+                sections.mobile.classList.remove('hidden');
+                sections.mobile.querySelectorAll('input[type="radio"]').forEach(r => r.required = true);
+            }
+            checkNotesRequired();
+        });
+
+        const notesInput = document.getElementById('notes');
+        const notesRequiredStar = document.getElementById('notesRequiredStar');
+        const notesOptionalText = document.getElementById('notesOptionalText');
+        const taskSourceRadios = document.querySelectorAll('input[name="taskSource"]');
+
+        function checkNotesRequired() {
+            const category = categorySelect.value;
+            let isSelfApplied = false;
+            taskSourceRadios.forEach(radio => {
+                if (radio.checked && radio.value === '自行申請') isSelfApplied = true;
+            });
+
+            if ((category === '行政公務 (20點/時)' || category === '教學公務 (20點/時)') && isSelfApplied) {
+                notesInput.required = true;
+                notesRequiredStar.classList.remove('hidden');
+                notesOptionalText.classList.add('hidden');
+                notesInput.placeholder = "您選擇了「自行申請」，請務必在此填寫事由說明...";
+                notesInput.classList.add('bg-[#fffbf0]', 'border-[#f2eadd]');
+            } else {
+                notesInput.required = false;
+                notesRequiredStar.classList.add('hidden');
+                notesOptionalText.classList.remove('hidden');
+                notesInput.placeholder = "若有其他說明請填寫於此...";
+                notesInput.classList.remove('bg-[#fffbf0]', 'border-[#f2eadd]');
+            }
+        }
+
+        taskSourceRadios.forEach(radio => radio.addEventListener('change', checkNotesRequired));
+
+        const successModal = document.getElementById('successModal');
+        const btnContinue = document.getElementById('btnContinue');
+        const btnOutlookQuery = document.getElementById('btnOutlookQuery');
+        const outlookQuerySection = document.getElementById('outlookQuerySection');
+        
+        const queryEmpIdInput = document.getElementById('queryEmpId');
+        const queryMonthInput = document.getElementById('queryMonth');
+        const queryEmpNameDisplay = document.getElementById('queryEmpNameDisplay');
+        const queryEmpError = document.getElementById('queryEmpError');
+        const btnSendQuery = document.getElementById('btnSendQuery');
+
+        btnContinue.addEventListener('click', () => {
+            successModal.classList.add('hidden');
+            outlookQuerySection.classList.add('hidden');
+            queryEmpIdInput.value = '';
+            queryEmpNameDisplay.classList.add('hidden');
+            queryEmpError.classList.add('hidden');
+            resetFormToDefault(true);
+        });
+
+        btnOutlookQuery.addEventListener('click', () => {
+            outlookQuerySection.classList.remove('hidden');
+            if(empIdInput.value) {
+                queryEmpIdInput.value = empIdInput.value;
+                queryEmpIdInput.dispatchEvent(new Event('input'));
+            }
+        });
+
+        // 共用的員編驗證器（各個查詢區塊共用同一套邏輯）
+        function createEmpQueryValidator(inputEl, displayEl, errorEl) {
+            const state = { isValid: false };
+            inputEl.addEventListener('input', function() {
+                let id = this.value.trim().toUpperCase();
+                this.value = id;
+                if (id === '') {
+                    displayEl.classList.add('hidden');
+                    errorEl.classList.add('hidden');
+                    state.isValid = false;
+                    return;
+                }
+                if (employeeData[id]) {
+                    displayEl.querySelector('span').textContent = `查詢對象：${employeeData[id]}`;
+                    displayEl.classList.remove('hidden');
+                    errorEl.classList.add('hidden');
+                    state.isValid = true;
+                } else {
+                    displayEl.classList.add('hidden');
+                    errorEl.classList.remove('hidden');
+                    state.isValid = false;
+                }
+            });
+            return state;
+        }
+
+        // 共用的查詢寄信函式（各個查詢區塊共用）
+        async function sendQueryEmail(empId, month, buttonEl) {
+            const originalText = buttonEl.innerText;
+            buttonEl.disabled = true;
+            buttonEl.innerText = '查詢並寄送中...';
+            buttonEl.classList.add('opacity-70');
+
+            let success = false;
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'query', empId: empId, month: month })
+                });
+                const text = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (e) {
+                    throw new Error("伺服器回傳格式異常，請確認 GAS 程式碼是否正確。");
+                }
+                if (result.success) {
+                    alert(result.message);
+                    success = true;
+                } else {
+                    alert('查詢失敗：' + result.message);
+                }
+            } catch (error) {
+                alert('網路錯誤或伺服器異常，請稍後再試。');
+                console.error(error);
+            } finally {
+                buttonEl.disabled = false;
+                buttonEl.innerText = originalText;
+                buttonEl.classList.remove('opacity-70');
+            }
+            return success;
+        }
+
+        // Modal 內（申報成功後）查詢區塊：套用共用驗證器
+        const queryValidator = createEmpQueryValidator(queryEmpIdInput, queryEmpNameDisplay, queryEmpError);
+
+        btnSendQuery.addEventListener('click', async () => {
+            if (!queryValidator.isValid) {
+                queryEmpError.classList.remove('hidden');
+                queryEmpIdInput.focus();
+                return;
+            }
+            if (!queryMonthInput.value) {
+                alert('請選擇查詢月份！');
+                return;
+            }
+
+            const ok = await sendQueryEmail(queryEmpIdInput.value, queryMonthInput.value, btnSendQuery);
+            if (ok) {
+                successModal.classList.add('hidden');
+                outlookQuerySection.classList.add('hidden');
+                queryEmpIdInput.value = '';
+                queryEmpNameDisplay.classList.add('hidden');
+                resetFormToDefault(false);
+            }
+        });
+
+        // ★★★ 新增：標題旁「查詢紀錄」按鈕 → 開啟獨立查詢 Modal ★★★
+        const btnOpenQueryModal = document.getElementById('btnOpenQueryModal');
+        const btnCloseQueryModal = document.getElementById('btnCloseQueryModal');
+        const queryModal = document.getElementById('queryModal');
+
+        const mainQueryEmpIdInput = document.getElementById('mainQueryEmpId');
+        const mainQueryMonthInput = document.getElementById('mainQueryMonth');
+        const mainQueryEmpNameDisplay = document.getElementById('mainQueryEmpNameDisplay');
+        const mainQueryEmpError = document.getElementById('mainQueryEmpError');
+        const btnMainSendQuery = document.getElementById('btnMainSendQuery');
+
+        const mainQueryValidator = createEmpQueryValidator(mainQueryEmpIdInput, mainQueryEmpNameDisplay, mainQueryEmpError);
+
+        btnOpenQueryModal.addEventListener('click', () => {
+            queryModal.classList.remove('hidden');
+        });
+
+        btnCloseQueryModal.addEventListener('click', () => {
+            queryModal.classList.add('hidden');
+        });
+
+        // 點擊 Modal 半透明背景區域也可關閉視窗
+        queryModal.addEventListener('click', (e) => {
+            if (e.target === queryModal) {
+                queryModal.classList.add('hidden');
+            }
+        });
+
+        btnMainSendQuery.addEventListener('click', async () => {
+            if (!mainQueryValidator.isValid) {
+                mainQueryEmpError.classList.remove('hidden');
+                mainQueryEmpIdInput.focus();
+                return;
+            }
+            if (!mainQueryMonthInput.value) {
+                alert('請選擇查詢月份！');
+                return;
+            }
+            const ok = await sendQueryEmail(mainQueryEmpIdInput.value, mainQueryMonthInput.value, btnMainSendQuery);
+            if (ok) {
+                queryModal.classList.add('hidden');
+                mainQueryEmpIdInput.value = '';
+                mainQueryEmpNameDisplay.classList.add('hidden');
+            }
+        });
+
+        function resetFormToDefault(keepEmpId = false) {
+            const currentEmpId = empIdInput.value; 
+
+            document.getElementById('kpiForm').reset();
+            setDefaultDate();
+            document.getElementById('hours').value = '4'; 
+            isHoursValid = true;
+            
+            hideAllSections();
+            categoryDescBox.classList.add('hidden');
+            checkNotesRequired();
+
+            if (keepEmpId && currentEmpId) {
+                empIdInput.value = currentEmpId;
+                empIdInput.dispatchEvent(new Event('input'));
+            } else {
+                nameDisplayBox.classList.add('hidden');
+                isEmpValid = false;
+            }
+        }
+
+        document.getElementById('kpiForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!isEmpValid) {
+                empIdInput.focus();
+                empError.classList.remove('hidden');
+                return;
+            }
+            if (!isHoursValid || hoursInput.value === '') {
+                hoursInput.focus();
+                hoursError.classList.remove('hidden');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const statusMsg = document.getElementById('statusMessage');
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = '資料傳送中...';
+            submitBtn.classList.replace('theme-primary', 'bg-[#b8c9c3]');
+            submitBtn.classList.remove('theme-primary-hover');
+
+            const formData = new FormData(this);
+            
+            const payload = {
+                action: 'submit',
+                data: {
+                    workDate: formData.get('workDate'),
+                    workShift: formData.get('workShift'),
+                    empId: formData.get('empId').toUpperCase(),
+                    empName: employeeData[formData.get('empId').toUpperCase()],
+                    category: formData.get('category'),
+                    hours: formData.get('hours'),
+                    trainingArea: formData.get('trainingArea'),
+                    supportArea: formData.get('supportArea'),
+                    taskSource: formData.get('taskSource'),
+                    shift: formData.get('shift'),
+                    notes: formData.get('notes')
+                }
+            };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    console.error("伺服器回傳非 JSON 格式：", text);
+                    data = { success: true }; 
+                }
+
+                if (data.success || data.result === "success") {
+                    successModal.classList.remove('hidden');
+                } else {
+                    throw new Error(data.message || data.error || "未知錯誤");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                statusMsg.innerHTML = '❌ 伺服器無回應，但資料可能已送出，請重新整理確認。';
+                statusMsg.className = 'text-center p-3.5 rounded-xl font-medium bg-[#fcf0f0] text-[#c95d5d] block mt-4 border border-[#f7dcdc]';
+                statusMsg.classList.remove('hidden');
+                setTimeout(() => {
+                    statusMsg.classList.add('hidden');
+                }, 6000);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = '送出申報';
+                submitBtn.classList.replace('bg-[#b8c9c3]', 'theme-primary');
+                submitBtn.classList.add('theme-primary-hover');
+            }
+        });
+    </script>
+</body>
+</html>
