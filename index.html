@@ -234,7 +234,7 @@
         </div>
     </div>
 
-    <!-- ★★★ 新增：獨立的「查詢申報紀錄」彈出視窗 (Modal) ★★★ -->
+    <!-- ★★★ 獨立的「查詢申報紀錄」彈出視窗 (Modal) ★★★ -->
     <div id="queryModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all">
             <div class="flex items-center justify-between mb-6">
@@ -269,8 +269,11 @@
     </div>
 
     <script>
-        // ★★★ 請替換為您最新部署的 Google Apps Script 網址 ★★★
+        // ★★★ KPI 申報系統的 GAS 網址（負責寫入/查詢申報紀錄）★★★
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpebWiI30_ybYnam19fG9qRrn6tGh4EIS7J-7SxOQkkyio7Dha7Fu97E64ReAzfnXhzw/exec';
+
+        // ★★★ 新增：獨立部署的「員工資料 API」網址，請填入您另外部署的網址 ★★★
+        const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbxN266G9nOteMtxxHnhhhlodNF1eYEgNS0_9PTj4QziSzOM3RvjiiM3DfMYn0RtUndf/exec';
 
         function setDefaultDate() {
             const today = new Date();
@@ -283,21 +286,32 @@
             if (mainQueryMonthEl) mainQueryMonthEl.value = `${yyyy}-${mm}`;
         }
 
-        document.addEventListener('DOMContentLoaded', setDefaultDate);
+        // ★★★ 新增：員工資料改為從外部 API 動態載入，初始為空物件 ★★★
+        let employeeData = {};
+        let isEmployeeDataLoaded = false;
 
-        const employeeData = {
-            "93564": "陳佩雲", "23551": "歐國棟", "88180": "楊雅雯", "92748": "洪思穎", "18359": "粟文治",
-            "45095": "楊志煒", "82097": "陳億達", "82837": "謝青釗", "94491": "白林益群", "86706": "吳芝瑩",
-            "80551": "林儷寶", "90537": "鐘國書", "91439": "蔡政宏", "97526": "鄭秀媛", "94046": "廖祿正",
-            "48823": "吳騏宇", "66819": "張賢慧", "88923": "劉于平", "82074": "曾健禎", "89676": "夏啟皓",
-            "95205": "吳莉蓉", "91364": "邱豐村", "F0318": "吳佩芸", "F0570": "翁心慈", "88792": "林徑維",
-            "94795": "楊翰", "88392": "吳雅芳", "54067": "郭勝權", "30072": "柯雅芬", "99310": "鍾玉娟",
-            "F0905": "朱琮祺", "45471": "林美花", "95489": "陳長源", "96065": "陳俊宇", "96463": "張立成",
-            "98039": "薛惠文", "F0538": "蔡宜蓁", "94434": "潘洧樊", "84976": "范志龍", "92447": "許桂賢",
-            "F0341": "黃媺涵", "81475": "蔡佳興", "98044": "蓋廉多", "F0537": "徐增承", "F0823": "陳舒妤",
-            "97520": "蔡怡宣", "15377": "江明玲", "F0644": "吳睿真", "95397": "許育誠", "93499": "盧承河",
-            "F1259": "李泓鈺", "F1255": "朱星融", "F1372": "鄭安傑", "F1561": "朱哲緯"
-        };
+        async function loadEmployeeData() {
+            try {
+                const response = await fetch(`${EMPLOYEE_API_URL}?action=getEmployees`);
+                const result = await response.json();
+                if (result.success) {
+                    employeeData = result.data;
+                    isEmployeeDataLoaded = true;
+                } else {
+                    console.error('員工資料載入失敗：', result.message);
+                    alert('員工資料載入失敗，請重新整理頁面或聯繫管理者。');
+                }
+            } catch (error) {
+                console.error('無法連線至員工資料伺服器：', error);
+                alert('無法載入員工資料，請確認網路連線後重新整理頁面。');
+            }
+        }
+
+        // ★★★ 修改：頁面載入時，先設定預設日期，再非同步載入員工資料 ★★★
+        document.addEventListener('DOMContentLoaded', async () => {
+            setDefaultDate();
+            await loadEmployeeData();
+        });
 
         const categoryDescriptions = {
             "臨床教學-在職人員 (5點/時)": "臨床教學(在職訓練、PGY、代訓...)，請註記訓練機房",
@@ -547,7 +561,7 @@
             }
         });
 
-        // ★★★ 新增：標題旁「查詢紀錄」按鈕 → 開啟獨立查詢 Modal ★★★
+        // ★★★ 標題旁「查詢紀錄」按鈕 → 開啟獨立查詢 Modal ★★★
         const btnOpenQueryModal = document.getElementById('btnOpenQueryModal');
         const btnCloseQueryModal = document.getElementById('btnCloseQueryModal');
         const queryModal = document.getElementById('queryModal');
@@ -616,6 +630,12 @@
 
         document.getElementById('kpiForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+
+            // ★★★ 新增：確保員工資料已載入完成才可送出，避免姓名對照失敗 ★★★
+            if (!isEmployeeDataLoaded) {
+                alert('員工資料尚未載入完成，請稍候再試一次。');
+                return;
+            }
 
             if (!isEmpValid) {
                 empIdInput.focus();
