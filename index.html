@@ -124,19 +124,21 @@
             <!-- 動態區塊 A：訓練相關 -->
             <div id="section-training" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
                 <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫訓練區域 <span class="text-[#c95d5d]">*</span></label>
-                <input type="text" id="trainingArea" name="trainingArea" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+                <!-- ★★★ 修改 placeholder 提示 ★★★ -->
+                <input type="text" id="trainingArea" name="trainingArea" placeholder="輸入duty" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
             </div>
 
             <!-- 動態區塊 B：支援與第二人力 -->
             <div id="section-support" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
 
-                <!-- 「支援」類別使用：文字輸入（維持原本行為不變）-->
+                <!-- 「支援」類別使用：文字輸入 -->
                 <div id="supportTextBlock">
                     <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫支援區域 <span class="text-[#c95d5d]">*</span></label>
-                    <input type="text" id="supportArea" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+                    <!-- ★★★ 修改 placeholder 提示 ★★★ -->
+                    <input type="text" id="supportArea" placeholder="輸入duty" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
                 </div>
 
-                <!-- ★ 新增：「第二人力」類別使用：可直接點選的單選按鈕群組（非下拉式）-->
+                <!-- 「第二人力」類別使用：可直接點選的單選按鈕群組 -->
                 <div id="secondManpowerBlock" class="hidden">
                     <label class="block text-sm font-medium theme-text-sub mb-3">請選擇支援機房 <span class="text-[#c95d5d]">*</span></label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -158,7 +160,6 @@
                         </label>
                     </div>
 
-                    <!-- ★ 新增：根據選擇的支援區域，顯示對應說明文字 -->
                     <div id="supportAreaDescBox" class="hidden mt-3 p-3 bg-[#fdfbf7] text-[#9c8466] rounded-xl border border-[#f2eadd] text-sm flex items-start">
                         <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span id="supportAreaDescText" class="leading-relaxed"></span>
@@ -244,7 +245,7 @@
         </form>
     </div>
 
-    <!-- ★★★ 成功送出後的小視窗 (Modal) ★★★ -->
+    <!-- 成功送出後的小視窗 (Modal) -->
     <div id="successModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all">
             <div class="text-center mb-8">
@@ -290,7 +291,7 @@
         </div>
     </div>
 
-    <!-- ★★★ 獨立的「查詢申報紀錄」彈出視窗 (Modal) ★★★ -->
+    <!-- 獨立的「查詢申報紀錄」彈出視窗 (Modal) -->
     <div id="queryModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all">
             <div class="flex items-center justify-between mb-6">
@@ -325,10 +326,7 @@
     </div>
 
     <script>
-        // ★★★ KPI 申報系統的 GAS 網址（負責寫入/查詢申報紀錄）★★★
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpebWiI30_ybYnam19fG9qRrn6tGh4EIS7J-7SxOQkkyio7Dha7Fu97E64ReAzfnXhzw/exec';
-
-        // ★★★ 獨立部署的「員工資料 API」網址 ★★★
         const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbxN266G9nOteMtxxHnhhhlodNF1eYEgNS0_9PTj4QziSzOM3RvjiiM3DfMYn0RtUndf/exec';
 
         function setDefaultDate() {
@@ -342,7 +340,6 @@
             if (mainQueryMonthEl) mainQueryMonthEl.value = `${yyyy}-${mm}`;
         }
 
-        // 員工資料改為從外部 API 動態載入，初始為空物件
         let employeeData = {};
         let isEmployeeDataLoaded = false;
 
@@ -379,8 +376,6 @@
             "急診機動 (20點/時)": "急診區4人以上作業時填報點值補充，目前統一填寫在急診線上表單。"
         };
 
-        // ★★★★★ 請在此處填寫「第二人力」各支援機房對應的說明文字 ★★★★★
-        // 使用者點選 ASRCT / MR1 / 病房 / 其它 後，會顯示對應的文字說明
         const supportAreaDescriptions = {
             "ASRCT": "AM(08-11)：3小時、PM(13-17)：4小時(有提早吃飯或接班者請自行扣除)",
             "MR1": "兩人各自申報AM(08-12)：2小時、PM(13-16)：1.5小時、N班(17-21)：2小時，週六(08-21)：6小時",
@@ -388,30 +383,10 @@
             "其它": "因儀器故障、保養而到其它機房支援者請改選【支援】"
         };
 
-        // ★★★★★ 第二人力「班別 + 支援機房」自動帶入時數對照表 ★★★★★
-        // 格式：hoursAutoRules[支援機房][班別] = 時數
-        // 若查無對應組合，calculateSecondManpowerHours() 會自動回傳預設值 4
         const hoursAutoRules = {
-            "病房": {
-                "AM": 2,
-                "PM": 2
-            },
-            "ASRCT": {
-                "AM": 3,
-                "PM": 4,
-                "B.D": 7,
-                "10-12": 1,
-                "10-17": 5
-            },
-            "MR1": {
-                "AM": 2,
-                "PM": 1.5,
-                "B.D": 3.5,
-                "17-21": 2,
-                "8-21": 5.5,
-                "G": 3.5
-            }
-            // "其它" 未列入對照表 → 一律呈現預設值 4
+            "病房": { "AM": 2, "PM": 2 },
+            "ASRCT": { "AM": 3, "PM": 4, "B.D": 7, "10-12": 1, "10-17": 5 },
+            "MR1": { "AM": 2, "PM": 1.5, "B.D": 3.5, "17-21": 2, "8-21": 5.5, "G": 3.5 }
         };
 
         const empIdInput = document.getElementById('empId');
@@ -457,7 +432,6 @@
             }
         });
 
-        // 申報時數 +/- 按鈕邏輯
         const hoursMinusBtn = document.getElementById('hoursMinusBtn');
         const hoursPlusBtn = document.getElementById('hoursPlusBtn');
 
@@ -492,16 +466,26 @@
         const supportAreaDescText = document.getElementById('supportAreaDescText');
         const secondManpowerRadios = document.querySelectorAll('input[name="secondManpowerArea"]');
 
-        // ★★★ 新增：依「班別 + 支援機房」自動計算第二人力時數 ★★★
+        const trainingAreaInput = document.getElementById('trainingArea');
+
+        // ★★★ 修改功能：允許輸入中文，但若是英文字母則自動轉換為大寫 ★★★
+        // 此函式移除了過濾非英數字的正則表達式，僅保留大寫轉換
+        function enforceUppercase(e) {
+            e.target.value = e.target.value.toUpperCase();
+        }
+
+        // 重新綁定到「訓練區域」與「支援區域」的輸入框上
+        trainingAreaInput.addEventListener('input', enforceUppercase);
+        supportAreaInput.addEventListener('input', enforceUppercase);
+
         function calculateSecondManpowerHours() {
-            // 僅在目前工作類別為「第二人力」時才自動帶入，其餘類別不受影響
             if (categorySelect.value !== '第二人力 (20點/時)') return;
 
             const shift = workShiftSelect.value;
             const checkedRadio = document.querySelector('input[name="secondManpowerArea"]:checked');
             const area = checkedRadio ? checkedRadio.value : '';
 
-            let autoHours = 4; // 預設值
+            let autoHours = 4;
             if (area && hoursAutoRules[area] && hoursAutoRules[area][shift] !== undefined) {
                 autoHours = hoursAutoRules[area][shift];
                 autoHoursHint.classList.remove('hidden');
@@ -513,10 +497,8 @@
             hoursInput.dispatchEvent(new Event('input'));
         }
 
-        // 班別改變時，若目前是第二人力，重新計算時數
         workShiftSelect.addEventListener('change', calculateSecondManpowerHours);
 
-        // 支援機房點選改變時，顯示說明文字並重新計算時數
         secondManpowerRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 if (supportAreaDescriptions[this.value]) {
@@ -539,7 +521,6 @@
                     else input.value = '';
                 });
             });
-            // 重置支援區域相關的顯示狀態
             supportTextBlock.classList.remove('hidden');
             secondManpowerBlock.classList.add('hidden');
             supportAreaDescBox.classList.add('hidden');
@@ -561,14 +542,12 @@
                 sections.training.classList.remove('hidden');
                 document.getElementById('trainingArea').required = true;
             } else if (val === '第二人力 (20點/時)') {
-                // ★ 第二人力：顯示可點選的支援機房按鈕群組，隱藏文字輸入
                 sections.support.classList.remove('hidden');
                 supportTextBlock.classList.add('hidden');
                 secondManpowerBlock.classList.remove('hidden');
                 secondManpowerRadios.forEach(r => r.required = true);
-                calculateSecondManpowerHours(); // 尚未選擇機房時，先呈現預設值 4
+                calculateSecondManpowerHours(); 
             } else if (val === '支援 (20點/時)') {
-                // ★ 支援：維持原本文字輸入（未變動）
                 sections.support.classList.remove('hidden');
                 secondManpowerBlock.classList.add('hidden');
                 supportTextBlock.classList.remove('hidden');
@@ -640,7 +619,6 @@
             }
         });
 
-        // 共用的員編驗證器（各個查詢區塊共用同一套邏輯）
         function createEmpQueryValidator(inputEl, displayEl, errorEl) {
             const state = { isValid: false };
             inputEl.addEventListener('input', function() {
@@ -666,7 +644,6 @@
             return state;
         }
 
-        // 共用的查詢寄信函式（各個查詢區塊共用）
         async function sendQueryEmail(empId, month, buttonEl) {
             const originalText = buttonEl.innerText;
             buttonEl.disabled = true;
@@ -704,7 +681,6 @@
             return success;
         }
 
-        // Modal 內（申報成功後）查詢區塊：套用共用驗證器
         const queryValidator = createEmpQueryValidator(queryEmpIdInput, queryEmpNameDisplay, queryEmpError);
 
         btnSendQuery.addEventListener('click', async () => {
@@ -728,7 +704,6 @@
             }
         });
 
-        // ★★★ 標題旁「查詢紀錄」按鈕 → 開啟獨立查詢 Modal ★★★
         const btnOpenQueryModal = document.getElementById('btnOpenQueryModal');
         const btnCloseQueryModal = document.getElementById('btnCloseQueryModal');
         const queryModal = document.getElementById('queryModal');
@@ -749,7 +724,6 @@
             queryModal.classList.add('hidden');
         });
 
-        // 點擊 Modal 半透明背景區域也可關閉視窗
         queryModal.addEventListener('click', (e) => {
             if (e.target === queryModal) {
                 queryModal.classList.add('hidden');
@@ -825,7 +799,6 @@
             const formData = new FormData(this);
             const categoryValue = formData.get('category');
 
-            // ★★★ 依照工作類別，判斷支援區域要取「文字輸入」還是「點選按鈕」的值 ★★★
             let supportAreaValue = '';
             if (categoryValue === '第二人力 (20點/時)') {
                 const checkedRadio = document.querySelector('input[name="secondManpowerArea"]:checked');
