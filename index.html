@@ -48,13 +48,24 @@
     <div class="max-w-lg mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-10">
         
         <!-- ★ 標題列：左側標題 + 右側「查詢申報紀錄」按鈕 -->
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center justify-between mb-4">
             <h2 class="text-2xl font-bold theme-text-main tracking-wide">放射師 KPI 申報表</h2>
             <button type="button" id="btnOpenQueryModal" 
                     class="flex items-center text-sm bg-[#eef5f2] hover:bg-[#dfeee8] text-[#528a7a] font-medium px-3.5 py-2 rounded-xl transition-colors whitespace-nowrap">
                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path></svg>
                 查詢紀錄
             </button>
+        </div>
+
+        <!-- ★★★ 新增：主標題下方的說明欄位 ★★★ -->
+        <div class="mb-8 p-4 bg-[#f8faf9] rounded-xl border border-[#eef2f0] text-sm text-[#5c7a6f] flex items-start shadow-sm">
+            <svg class="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="leading-relaxed">
+                <!-- 這裡的文字可以隨時修改為你需要的公告或指引 -->
+                新KPI人力申報表預計2026.08正式啟用，使用相關問題請聯繫行政組長處理。每月2日結束後統計上月份表單紀錄，請同仁記得登記。
+            </p>
         </div>
 
         <form id="kpiForm" class="space-y-6">
@@ -124,8 +135,7 @@
             <!-- 動態區塊 A：訓練相關 -->
             <div id="section-training" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
                 <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫訓練區域 <span class="text-[#c95d5d]">*</span></label>
-                <!-- ★★★ 修改 placeholder 提示 ★★★ -->
-                <input type="text" id="trainingArea" name="trainingArea" placeholder="輸入duty" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+                <input type="text" id="trainingArea" name="trainingArea" placeholder="輸入區域 (英文將自動轉大寫，如: 急診X光 或 CT1)" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
             </div>
 
             <!-- 動態區塊 B：支援與第二人力 -->
@@ -134,8 +144,7 @@
                 <!-- 「支援」類別使用：文字輸入 -->
                 <div id="supportTextBlock">
                     <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫支援區域 <span class="text-[#c95d5d]">*</span></label>
-                    <!-- ★★★ 修改 placeholder 提示 ★★★ -->
-                    <input type="text" id="supportArea" placeholder="輸入duty" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+                    <input type="text" id="supportArea" placeholder="輸入區域 (英文將自動轉大寫，如: 病房MR 或 X光2室)" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
                 </div>
 
                 <!-- 「第二人力」類別使用：可直接點選的單選按鈕群組 -->
@@ -468,13 +477,10 @@
 
         const trainingAreaInput = document.getElementById('trainingArea');
 
-        // ★★★ 修改功能：允許輸入中文，但若是英文字母則自動轉換為大寫 ★★★
-        // 此函式移除了過濾非英數字的正則表達式，僅保留大寫轉換
         function enforceUppercase(e) {
             e.target.value = e.target.value.toUpperCase();
         }
 
-        // 重新綁定到「訓練區域」與「支援區域」的輸入框上
         trainingAreaInput.addEventListener('input', enforceUppercase);
         supportAreaInput.addEventListener('input', enforceUppercase);
 
