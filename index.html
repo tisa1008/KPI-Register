@@ -10,18 +10,17 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
         body {
             font-family: 'Noto Sans TC', sans-serif;
+            scroll-behavior: smooth;
         }
         .dynamic-section {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
         }
-        /* 柔和的滾動條 */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f0f4f3; }
         ::-webkit-scrollbar-thumb { background: #b8c9c3; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #96adA5; }
         
-        /* 自訂護眼色系 */
         .theme-bg { background-color: #f0f4f3; }
         .theme-card { background-color: #ffffff; }
         .theme-text-main { color: #2d4a41; }
@@ -32,7 +31,6 @@
         .theme-primary-hover:hover { background-color: #437365; }
         .theme-ring:focus { box-shadow: 0 0 0 2px #8ab8a8; border-color: #528a7a; }
 
-        /* 隱藏數字輸入框的瀏覽器原生上下箭頭，改用自訂 +/- 按鈕 */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -43,214 +41,255 @@
         }
     </style>
 </head>
-<body class="theme-bg p-4 md:p-8 min-h-screen overflow-y-auto text-[#4a5568]">
+<body class="theme-bg p-4 md:p-8 min-h-screen text-[#4a5568]">
 
-    <div class="max-w-lg mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-10">
+    <div class="max-w-4xl mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-10 flex flex-col">
         
-        <!-- ★ 標題列：左側標題 + 右側「查詢申報紀錄」按鈕 -->
-        <div class="flex items-center justify-between mb-4">
+        <!-- ★ 標題列 -->
+        <div class="flex items-center justify-between mb-6 border-b border-gray-100 pb-4">
             <h2 class="text-2xl font-bold theme-text-main tracking-wide">放射師 KPI 申報表</h2>
-            <button type="button" id="btnOpenQueryModal" 
-                    class="flex items-center text-sm bg-[#eef5f2] hover:bg-[#dfeee8] text-[#528a7a] font-medium px-3.5 py-2 rounded-xl transition-colors whitespace-nowrap">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path></svg>
-                查詢紀錄
-            </button>
+            
+            <div class="flex items-center gap-3">
+                <!-- ★ 隱藏的「切換主管版」按鈕 -->
+                <button type="button" id="secretAdminBtn" onclick="checkAdmin()" 
+                        class="hidden flex items-center text-sm bg-yellow-50 hover:bg-yellow-100 text-yellow-700 font-medium px-4 py-2.5 rounded-xl transition-all shadow-sm border border-yellow-200">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                    切換主管版
+                </button>
+                
+                <button type="button" id="btnOpenQueryModal" 
+                        class="flex items-center text-sm bg-[#eef5f2] hover:bg-[#dfeee8] text-[#528a7a] font-medium px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap shadow-sm">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path></svg>
+                    查詢紀錄
+                </button>
+            </div>
         </div>
 
-        <!-- ★★★ 新增：主標題下方的說明欄位 ★★★ -->
+        <!-- ★ 系統說明區塊 (為同仁移至最上方) -->
         <div class="mb-8 p-4 bg-[#f8faf9] rounded-xl border border-[#eef2f0] text-sm text-[#5c7a6f] flex items-start shadow-sm">
             <svg class="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <p class="leading-relaxed">
-                <!-- 這裡的文字可以隨時修改為你需要的公告或指引 -->
-                新KPI人力申報表預計2026.08正式啟用，使用相關問題請聯繫行政組長處理。每月2日結束後統計上月份表單紀錄，請同仁記得登記。
+                新 KPI 人力申報表預計 2026.08 正式啟用，使用相關問題請聯繫行政組長處理。每月 2 日結束後統計上月份表單紀錄，請同仁記得登記。
             </p>
         </div>
 
-        <form id="kpiForm" class="space-y-6">
+        <!-- 雙欄表單結構 -->
+        <form id="kpiForm" class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6 flex-grow">
             
-            <!-- 1. 員編與姓名 -->
-            <div>
-                <label class="block text-sm font-medium theme-text-sub mb-1.5">員工編號 <span class="text-[#c95d5d]">*</span></label>
-                <input type="text" id="empId" name="empId" required placeholder="請輸入 5 碼員編" 
-                       class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors">
-                
-                <div id="nameDisplayBox" class="hidden mt-2 p-3 bg-[#eef5f2] theme-text-main rounded-xl border border-[#d3e3dc] flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    <span class="font-medium">姓名：</span>
-                    <span id="empName" class="ml-1 font-bold"></span>
-                </div>
-                
-                <p id="empError" class="text-[#c95d5d] text-sm mt-2 hidden font-medium flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    員編錯誤，請重新輸入。
-                </p>
-            </div>
-
-            <!-- 2. 日期選擇 -->
-            <div>
-                <label class="block text-sm font-medium theme-text-sub mb-1.5">日期 <span class="text-[#c95d5d]">*</span></label>
-                <input type="date" id="workDate" name="workDate" required 
-                       class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
-            </div>
-
-            <!-- 3. 班別選擇 -->
-            <div>
-                <label class="block text-sm font-medium theme-text-sub mb-1.5">班別 <span class="text-[#c95d5d]">*</span></label>
-                <select id="workShift" name="workShift" required class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
-                    <option value="" disabled selected>請選擇實際申報班別</option>
-                    <option value="AM">AM</option>
-                    <option value="PM">PM</option>
-                    <option value="17-21">17-21</option>
-                    <option value="8-21">8-21</option>
-                    <option value="B.D">B班、D班</option>
-                    <option value="G">G</option>
-                    <option value="10-12">10-12</option>
-                    <option value="10-17">10-17</option>
-                </select>
-            </div>
-
-            <!-- 4. 工作類別 -->
-            <div>
-                <label class="block text-sm font-medium theme-text-sub mb-1.5">工作類別 <span class="text-[#c95d5d]">*</span></label>
-                <select id="category" name="category" required class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
-                    <option value="" disabled selected>請選擇工作類別</option>
-                    <option value="第二人力 (20點/時)">第二人力 (20點/時)</option>
-                    <option value="支援 (20點/時)">支援 (20點/時)</option>
-                    <option value="行政公務 (20點/時)">行政公務 (20點/時)</option>
-                    <option value="教學公務 (20點/時)">教學公務 (20點/時)</option>
-                    <option value="急診機動 (20點/時)">急診機動 (20點/時)</option>
-                    <option value="臨床受訓 (15點/時)">臨床受訓 (15點/時)</option>
-                    <option value="臨床教學-在職人員 (5點/時)">臨床教學-在職人員 (5點/時)</option>
-                    <option value="臨床教學-實習生 (2.5點/時)">臨床教學-實習生 (2.5點/時)</option>
-                </select>
-                
-                <div id="categoryDescBox" class="hidden mt-2 p-3 bg-[#fdfbf7] text-[#9c8466] rounded-xl border border-[#f2eadd] text-sm flex items-start">
-                    <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span id="categoryDescText" class="leading-relaxed"></span>
-                </div>
-            </div>
-
-            <!-- 動態區塊 A：訓練相關 -->
-            <div id="section-training" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
-                <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫訓練區域 <span class="text-[#c95d5d]">*</span></label>
-                <input type="text" id="trainingArea" name="trainingArea" placeholder="輸入區域 (英文將自動轉大寫，如: 急診X光 或 CT1)" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
-            </div>
-
-            <!-- 動態區塊 B：支援與第二人力 -->
-            <div id="section-support" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
-
-                <!-- 「支援」類別使用：文字輸入 -->
-                <div id="supportTextBlock">
-                    <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫支援區域 <span class="text-[#c95d5d]">*</span></label>
-                    <input type="text" id="supportArea" placeholder="輸入區域 (英文將自動轉大寫，如: 病房MR 或 X光2室)" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+            <!-- ====== 左欄：基本資料 ====== -->
+            <div class="space-y-6">
+                <!-- 1. 員編與姓名 -->
+                <div>
+                    <label class="block text-sm font-medium theme-text-sub mb-1.5">員工編號 <span class="text-[#c95d5d]">*</span></label>
+                    <input type="text" id="empId" name="empId" required placeholder="請輸入 5 碼員編" 
+                           class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors font-medium tracking-widest text-lg">
+                    
+                    <div id="nameDisplayBox" class="hidden mt-2 p-3 bg-[#eef5f2] theme-text-main rounded-xl border border-[#d3e3dc] flex items-center shadow-sm">
+                        <svg class="w-5 h-5 mr-2 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span class="font-medium">姓名：</span>
+                        <span id="empName" class="ml-1 font-bold text-lg"></span>
+                    </div>
+                    
+                    <p id="empError" class="text-[#c95d5d] text-sm mt-2 hidden font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        員編錯誤，請重新輸入。
+                    </p>
                 </div>
 
-                <!-- 「第二人力」類別使用：可直接點選的單選按鈕群組 -->
-                <div id="secondManpowerBlock" class="hidden">
-                    <label class="block text-sm font-medium theme-text-sub mb-3">請選擇支援機房 <span class="text-[#c95d5d]">*</span></label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <!-- 2. 日期選擇 -->
+                <div>
+                    <label class="block text-sm font-medium theme-text-sub mb-1.5">日期 <span class="text-[#c95d5d]">*</span></label>
+                    <input type="date" id="workDate" name="workDate" required 
+                           class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+                </div>
+
+                <!-- 3. 班別選擇 (單選方塊) -->
+                <div>
+                    <label class="block text-sm font-medium theme-text-sub mb-2">班別 <span class="text-[#c95d5d]">*</span></label>
+                    <div class="grid grid-cols-4 gap-2">
                         <label class="cursor-pointer">
-                            <input type="radio" name="secondManpowerArea" value="ASRCT" class="peer sr-only">
-                            <div class="text-center border theme-input-border rounded-xl px-2 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white peer-checked:border-[#528a7a] transition-colors">ASRCT</div>
+                            <input type="radio" name="workShift" value="AM" class="peer sr-only" required>
+                            <div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">AM</div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="secondManpowerArea" value="MR1" class="peer sr-only">
-                            <div class="text-center border theme-input-border rounded-xl px-2 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white peer-checked:border-[#528a7a] transition-colors">MR1</div>
+                            <input type="radio" name="workShift" value="PM" class="peer sr-only">
+                            <div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">PM</div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="secondManpowerArea" value="病房" class="peer sr-only">
-                            <div class="text-center border theme-input-border rounded-xl px-2 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white peer-checked:border-[#528a7a] transition-colors">病房</div>
+                            <input type="radio" name="workShift" value="17-21" class="peer sr-only">
+                            <div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">17-21</div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="secondManpowerArea" value="其它" class="peer sr-only">
-                            <div class="text-center border theme-input-border rounded-xl px-2 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white peer-checked:border-[#528a7a] transition-colors">其它</div>
+                            <input type="radio" name="workShift" value="8-21" class="peer sr-only">
+                            <div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">8-21</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="workShift" value="B.D" class="peer sr-only">
+                            <div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">B、D班</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="workShift" value="G" class="peer sr-only">
+                            <div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">G</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="workShift" value="10-12" class="peer sr-only">
+                            <div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">10-12</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="workShift" value="10-17" class="peer sr-only">
+                            <div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">10-17</div>
                         </label>
                     </div>
+                </div>
+            </div>
 
-                    <div id="supportAreaDescBox" class="hidden mt-3 p-3 bg-[#fdfbf7] text-[#9c8466] rounded-xl border border-[#f2eadd] text-sm flex items-start">
+            <!-- ====== 右欄：工作細節 ====== -->
+            <div class="space-y-6 flex flex-col">
+                <!-- 4. 工作類別 -->
+                <div>
+                    <label class="block text-sm font-medium theme-text-sub mb-1.5">工作類別 <span class="text-[#c95d5d]">*</span></label>
+                    <select id="category" name="category" required class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+                        <option value="" disabled selected>請選擇工作類別</option>
+                        <option value="第二人力 (20點/時)">第二人力 (20點/時)</option>
+                        <option value="支援 (20點/時)">支援 (20點/時)</option>
+                        <option value="行政公務 (20點/時)">行政公務 (20點/時)</option>
+                        <option value="教學公務 (20點/時)">教學公務 (20點/時)</option>
+                        <option value="急診機動 (20點/時)">急診機動 (20點/時)</option>
+                        <option value="臨床受訓 (15點/時)">臨床受訓 (15點/時)</option>
+                        <option value="臨床教學-在職人員 (5點/時)">臨床教學-在職人員 (5點/時)</option>
+                        <option value="臨床教學-實習生 (2.5點/時)">臨床教學-實習生 (2.5點/時)</option>
+                    </select>
+                    
+                    <div id="categoryDescBox" class="hidden mt-2 p-3 bg-[#fdfbf7] text-[#9c8466] rounded-xl border border-[#f2eadd] text-sm flex items-start shadow-sm">
                         <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span id="supportAreaDescText" class="leading-relaxed"></span>
+                        <span id="categoryDescText" class="leading-relaxed"></span>
                     </div>
                 </div>
-            </div>
 
-            <!-- 動態區塊 C：公、教事務 -->
-            <div id="section-official" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
-                <label class="block text-sm font-medium theme-text-sub mb-3">任務來源 <span class="text-[#c95d5d]">*</span></label>
-                <div class="flex space-x-8">
-                    <label class="flex items-center cursor-pointer group">
-                        <input type="radio" name="taskSource" value="主管指派" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
-                        <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">主管指派</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer group">
-                        <input type="radio" name="taskSource" value="自行申請" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
-                        <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">自行申請</span>
-                    </label>
+                <!-- 動態展開區塊 -->
+                <div>
+                    <!-- 動態區塊 A：訓練相關 -->
+                    <div id="section-training" class="dynamic-section hidden bg-[#f8faf9] p-4 rounded-xl border border-[#eef2f0] shadow-sm">
+                        <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫訓練區域 <span class="text-[#c95d5d]">*</span></label>
+                        <input type="text" id="trainingArea" name="trainingArea" placeholder="輸入區域 (英文將自動轉大寫，如: 急診X光 或 CT1)" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+                    </div>
+
+                    <!-- 動態區塊 B：支援與第二人力 -->
+                    <div id="section-support" class="dynamic-section hidden bg-[#f8faf9] p-4 rounded-xl border border-[#eef2f0] shadow-sm">
+                        <div id="supportTextBlock">
+                            <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫支援區域 <span class="text-[#c95d5d]">*</span></label>
+                            <input type="text" id="supportArea" placeholder="輸入區域 (英文將自動轉大寫，如: 病房MR)" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+                        </div>
+                        <div id="secondManpowerBlock" class="hidden">
+                            <label class="block text-sm font-medium theme-text-sub mb-2">請選擇支援機房 <span class="text-[#c95d5d]">*</span></label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="secondManpowerArea" value="ASRCT" class="peer sr-only">
+                                    <div class="text-center border theme-input-border rounded-xl px-2 py-2 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors">ASRCT</div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="secondManpowerArea" value="MR1" class="peer sr-only">
+                                    <div class="text-center border theme-input-border rounded-xl px-2 py-2 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors">MR1</div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="secondManpowerArea" value="病房" class="peer sr-only">
+                                    <div class="text-center border theme-input-border rounded-xl px-2 py-2 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors">病房</div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="secondManpowerArea" value="其它" class="peer sr-only">
+                                    <div class="text-center border theme-input-border rounded-xl px-2 py-2 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors">其它</div>
+                                </label>
+                            </div>
+                            <div id="supportAreaDescBox" class="hidden mt-3 p-3 bg-[#fdfbf7] text-[#9c8466] rounded-xl border border-[#f2eadd] text-sm flex items-start">
+                                <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span id="supportAreaDescText" class="leading-relaxed"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 動態區塊 C：公、教事務 -->
+                    <div id="section-official" class="dynamic-section hidden bg-[#f8faf9] p-4 rounded-xl border border-[#eef2f0] shadow-sm">
+                        <label class="block text-sm font-medium theme-text-sub mb-3">任務來源 <span class="text-[#c95d5d]">*</span></label>
+                        <div class="flex space-x-8">
+                            <label class="flex items-center cursor-pointer group">
+                                <input type="radio" name="taskSource" value="主管指派" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
+                                <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">主管指派</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer group">
+                                <input type="radio" name="taskSource" value="自行申請" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
+                                <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">自行申請</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 動態區塊 D：急診機動班別 -->
+                    <div id="section-mobile" class="dynamic-section hidden bg-[#f8faf9] p-4 rounded-xl border border-[#eef2f0] shadow-sm">
+                        <label class="block text-sm font-medium theme-text-sub mb-3">機動班別 <span class="text-[#c95d5d]">*</span></label>
+                        <div class="flex space-x-8">
+                            <label class="flex items-center cursor-pointer group">
+                                <input type="radio" name="shift" value="白班" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
+                                <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">白班</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer group">
+                                <input type="radio" name="shift" value="小夜" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
+                                <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">小夜</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer group">
+                                <input type="radio" name="shift" value="大夜" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
+                                <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">大夜</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. 申報時數 -->
+                <div class="mt-auto pt-2">
+                    <label class="block text-sm font-medium theme-text-sub mb-1.5">申報時數 (請以 0.5 為單位) <span class="text-[#c95d5d]">*</span></label>
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="hoursMinusBtn" 
+                                class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border theme-input-border bg-white text-[#528a7a] text-xl font-bold hover:bg-[#eef5f2] active:scale-95 transition-all shadow-sm">
+                            −
+                        </button>
+                        <input type="number" id="hours" name="hours" step="0.5" min="0.5" required placeholder="例如: 0.5, 1.0" value="4"
+                               class="w-full text-center border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700 shadow-sm">
+                        <button type="button" id="hoursPlusBtn" 
+                                class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border theme-input-border bg-white text-[#528a7a] text-xl font-bold hover:bg-[#eef5f2] active:scale-95 transition-all shadow-sm">
+                            +
+                        </button>
+                    </div>
+                    <p id="hoursError" class="text-[#c95d5d] text-sm mt-2 hidden font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        時數格式錯誤！請輸入 0.5 的倍數。
+                    </p>
+                    <p id="autoHoursHint" class="hidden text-[#528a7a] text-xs mt-2 font-medium">
+                        ✓ 已依「班別＋支援機房」自動帶入建議時數，如有需要仍可手動調整。
+                    </p>
                 </div>
             </div>
 
-            <!-- 動態區塊 D：急診機動班別 -->
-            <div id="section-mobile" class="dynamic-section hidden bg-[#f8faf9] p-5 rounded-xl border border-[#eef2f0]">
-                <label class="block text-sm font-medium theme-text-sub mb-3">機動班別 <span class="text-[#c95d5d]">*</span></label>
-                <div class="flex space-x-8">
-                    <label class="flex items-center cursor-pointer group">
-                        <input type="radio" name="shift" value="白班" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
-                        <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">白班</span>
+            <!-- ====== 底部橫跨雙欄：其他備註與按鈕 ====== -->
+            <div class="lg:col-span-2 border-t border-gray-100 pt-6 mt-2">
+                <!-- 6. 其他備註 -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium theme-text-sub mb-1.5">
+                        其他備註 
+                        <span id="notesOptionalText" class="text-gray-400 text-xs ml-1 font-normal">(選填)</span>
+                        <span id="notesRequiredStar" class="text-[#c95d5d] hidden">*</span>
                     </label>
-                    <label class="flex items-center cursor-pointer group">
-                        <input type="radio" name="shift" value="小夜" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
-                        <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">小夜</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer group">
-                        <input type="radio" name="shift" value="大夜" class="w-4 h-4 text-[#528a7a] focus:ring-[#528a7a] border-gray-300">
-                        <span class="ml-2 theme-text-main group-hover:text-[#528a7a] transition-colors">大夜</span>
-                    </label>
+                    <textarea id="notes" name="notes" rows="2" class="w-full border theme-input-border rounded-xl px-4 py-3 outline-none theme-ring theme-input-bg transition-colors resize-none shadow-sm" placeholder="若有其他說明請填寫於此..."></textarea>
                 </div>
-            </div>
 
-            <!-- 5. 申報時數 -->
-            <div>
-                <label class="block text-sm font-medium theme-text-sub mb-1.5">申報時數 (請以 0.5 為單位) <span class="text-[#c95d5d]">*</span></label>
-                <div class="flex items-center gap-2">
-                    <button type="button" id="hoursMinusBtn" 
-                            class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border theme-input-border bg-white text-[#528a7a] text-xl font-bold hover:bg-[#eef5f2] active:scale-95 transition-all">
-                        −
+                <!-- 送出按鈕 -->
+                <div class="flex justify-center">
+                    <button type="submit" id="submitBtn" class="w-full max-w-md theme-primary text-white font-bold py-3.5 px-4 rounded-xl theme-primary-hover transition duration-300 shadow-md tracking-wide text-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        送出申報
                     </button>
-                    <input type="number" id="hours" name="hours" step="0.5" min="0.5" required placeholder="例如: 0.5, 1.0, 1.5" value="4"
-                           class="w-full text-center border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
-                    <button type="button" id="hoursPlusBtn" 
-                            class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border theme-input-border bg-white text-[#528a7a] text-xl font-bold hover:bg-[#eef5f2] active:scale-95 transition-all">
-                        +
-                    </button>
                 </div>
-                <p id="hoursError" class="text-[#c95d5d] text-sm mt-2 hidden font-medium flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    時數格式錯誤！請輸入 0.5 的倍數。
-                </p>
-                <p id="autoHoursHint" class="hidden text-[#528a7a] text-xs mt-2 font-medium">
-                    ✓ 已依「班別＋支援機房」自動帶入建議時數，如有需要仍可手動調整。
-                </p>
+                <div id="statusMessage" class="hidden text-center p-3.5 rounded-xl font-medium text-sm mt-4"></div>
             </div>
-
-            <!-- 6. 其他備註 -->
-            <div>
-                <label class="block text-sm font-medium theme-text-sub mb-1.5">
-                    其他備註 
-                    <span id="notesOptionalText" class="text-gray-400 text-xs ml-1 font-normal">(選填)</span>
-                    <span id="notesRequiredStar" class="text-[#c95d5d] hidden">*</span>
-                </label>
-                <textarea id="notes" name="notes" rows="3" class="w-full border theme-input-border rounded-xl px-4 py-3 outline-none theme-ring theme-input-bg transition-colors resize-none" placeholder="若有其他說明請填寫於此..."></textarea>
-            </div>
-
-            <!-- 送出按鈕與提示訊息 -->
-            <button type="submit" id="submitBtn" class="w-full theme-primary text-white font-medium py-3.5 px-4 rounded-xl theme-primary-hover transition duration-300 shadow-sm tracking-wide text-lg mt-2">
-                送出申報
-            </button>
-            
-            <div id="statusMessage" class="hidden text-center p-3.5 rounded-xl font-medium text-sm"></div>
-
         </form>
     </div>
 
@@ -338,6 +377,18 @@
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpebWiI30_ybYnam19fG9qRrn6tGh4EIS7J-7SxOQkkyio7Dha7Fu97E64ReAzfnXhzw/exec';
         const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbxN266G9nOteMtxxHnhhhlodNF1eYEgNS0_9PTj4QziSzOM3RvjiiM3DfMYn0RtUndf/exec';
 
+        // ★ 主管隱藏通道驗證邏輯
+        function checkAdmin() {
+            const pwd = prompt("請輸入主管專用驗證密碼：");
+            // ★ 可修改 密碼
+            if (pwd === "admin1008") {
+                // ★ 已切換至您指定的主管版網址
+                window.location.href = "https://femhmedimage-kpi-vip.netlify.app"; 
+            } else if (pwd !== null) {
+                alert("密碼錯誤，拒絕存取！");
+            }
+        }
+
         function setDefaultDate() {
             const today = new Date();
             const yyyy = today.getFullYear();
@@ -359,13 +410,17 @@
                 if (result.success) {
                     employeeData = result.data;
                     isEmployeeDataLoaded = true;
+                    
+                    // 確保 API 載入後，若有員編已輸入，能自動觸發驗證
+                    const currentInput = document.getElementById('empId').value;
+                    if (currentInput) {
+                        document.getElementById('empId').dispatchEvent(new Event('input'));
+                    }
                 } else {
                     console.error('員工資料載入失敗：', result.message);
-                    alert('員工資料載入失敗，請重新整理頁面或聯繫管理者。');
                 }
             } catch (error) {
                 console.error('無法連線至員工資料伺服器：', error);
-                alert('無法載入員工資料，請確認網路連線後重新整理頁面。');
             }
         }
 
@@ -385,13 +440,6 @@
             "急診機動 (20點/時)": "急診區4人以上作業時填報點值補充，目前統一填寫在急診線上表單。"
         };
 
-        const supportAreaDescriptions = {
-            "ASRCT": "AM(08-11)：3小時、PM(13-17)：4小時(有提早吃飯或接班者請自行扣除)",
-            "MR1": "兩人各自申報AM(08-12)：2小時、PM(13-16)：1.5小時、N班(17-21)：2小時，週六(08-21)：6小時",
-            "病房": "建議兩人作業時間影像確認平分，兩人各自申報AM(08-12)：2小時、PM(13-17)：2小時",
-            "其它": "因儀器故障、保養而到其它機房支援者請改選【支援】"
-        };
-
         const hoursAutoRules = {
             "病房": { "AM": 2, "PM": 2 },
             "ASRCT": { "AM": 3, "PM": 4, "B.D": 7, "10-12": 1, "10-17": 5 },
@@ -402,11 +450,19 @@
         const nameDisplayBox = document.getElementById('nameDisplayBox');
         const empNameSpan = document.getElementById('empName');
         const empError = document.getElementById('empError');
+        const secretAdminBtn = document.getElementById('secretAdminBtn');
         let isEmpValid = false;
 
         empIdInput.addEventListener('input', function() {
             let id = this.value.trim().toUpperCase();
             this.value = id; 
+            
+            if (id === '91439') {
+                secretAdminBtn.classList.remove('hidden');
+            } else {
+                secretAdminBtn.classList.add('hidden');
+            }
+
             if (id === '') {
                 nameDisplayBox.classList.add('hidden');
                 empError.classList.add('hidden');
@@ -428,21 +484,18 @@
         const hoursInput = document.getElementById('hours');
         const hoursError = document.getElementById('hoursError');
         const autoHoursHint = document.getElementById('autoHoursHint');
-        let isHoursValid = true; 
 
         hoursInput.addEventListener('input', function() {
             const val = parseFloat(this.value);
             if (this.value !== '' && (isNaN(val) || val % 0.5 !== 0 || val <= 0)) {
                 hoursError.classList.remove('hidden');
-                isHoursValid = false;
             } else {
                 hoursError.classList.add('hidden');
-                isHoursValid = true;
             }
         });
 
-        const hoursMinusBtn = document.getElementById('hoursMinusBtn');
-        const hoursPlusBtn = document.getElementById('hoursPlusBtn');
+        document.getElementById('hoursMinusBtn').addEventListener('click', () => adjustHours(-0.5));
+        document.getElementById('hoursPlusBtn').addEventListener('click', () => adjustHours(0.5));
 
         function adjustHours(delta) {
             let val = parseFloat(hoursInput.value);
@@ -453,13 +506,13 @@
             hoursInput.dispatchEvent(new Event('input'));
         }
 
-        hoursMinusBtn.addEventListener('click', () => adjustHours(-0.5));
-        hoursPlusBtn.addEventListener('click', () => adjustHours(0.5));
+        function getSelectedShift() {
+            return document.querySelector('input[name="workShift"]:checked')?.value || '';
+        }
 
         const categorySelect = document.getElementById('category');
         const categoryDescBox = document.getElementById('categoryDescBox');
         const categoryDescText = document.getElementById('categoryDescText');
-        const workShiftSelect = document.getElementById('workShift');
         
         const sections = {
             training: document.getElementById('section-training'),
@@ -475,19 +528,13 @@
         const supportAreaDescText = document.getElementById('supportAreaDescText');
         const secondManpowerRadios = document.querySelectorAll('input[name="secondManpowerArea"]');
 
-        const trainingAreaInput = document.getElementById('trainingArea');
-
-        function enforceUppercase(e) {
-            e.target.value = e.target.value.toUpperCase();
-        }
-
-        trainingAreaInput.addEventListener('input', enforceUppercase);
-        supportAreaInput.addEventListener('input', enforceUppercase);
+        document.getElementById('trainingArea').addEventListener('input', e => e.target.value = e.target.value.toUpperCase());
+        supportAreaInput.addEventListener('input', e => e.target.value = e.target.value.toUpperCase());
 
         function calculateSecondManpowerHours() {
             if (categorySelect.value !== '第二人力 (20點/時)') return;
 
-            const shift = workShiftSelect.value;
+            const shift = getSelectedShift();
             const checkedRadio = document.querySelector('input[name="secondManpowerArea"]:checked');
             const area = checkedRadio ? checkedRadio.value : '';
 
@@ -503,12 +550,20 @@
             hoursInput.dispatchEvent(new Event('input'));
         }
 
-        workShiftSelect.addEventListener('change', calculateSecondManpowerHours);
+        document.querySelectorAll('input[name="workShift"]').forEach(radio => {
+            radio.addEventListener('change', calculateSecondManpowerHours);
+        });
 
         secondManpowerRadios.forEach(radio => {
             radio.addEventListener('change', function() {
-                if (supportAreaDescriptions[this.value]) {
-                    supportAreaDescText.textContent = supportAreaDescriptions[this.value];
+                const descriptions = {
+                    "ASRCT": "AM(08-11)：3小時、PM(13-17)：4小時(有提早吃飯或接班者請扣除)",
+                    "MR1": "兩人各自申報AM(08-12)：2小時、PM(13-16)：1.5小時、N班(17-21)：2小時",
+                    "病房": "建議兩人各自申報AM(08-12)：2小時、PM(13-17)：2小時",
+                    "其它": "因儀器故障、保養而到其它機房支援者請改選【支援】"
+                };
+                if (descriptions[this.value]) {
+                    supportAreaDescText.textContent = descriptions[this.value];
                     supportAreaDescBox.classList.remove('hidden');
                 } else {
                     supportAreaDescBox.classList.add('hidden');
@@ -520,8 +575,7 @@
         function hideAllSections() {
             Object.values(sections).forEach(sec => {
                 sec.classList.add('hidden');
-                const inputs = sec.querySelectorAll('input, select');
-                inputs.forEach(input => {
+                sec.querySelectorAll('input[type="text"], input[type="radio"]').forEach(input => {
                     input.required = false;
                     if (input.type === 'radio') input.checked = false;
                     else input.value = '';
@@ -560,7 +614,14 @@
                 supportAreaInput.required = true;
             } else if (val === '行政公務 (20點/時)' || val === '教學公務 (20點/時)') {
                 sections.official.classList.remove('hidden');
-                sections.official.querySelectorAll('input[type="radio"]').forEach(r => r.required = true);
+                const radios = sections.official.querySelectorAll('input[type="radio"]');
+                radios.forEach(r => r.required = true);
+                
+                // ★ 預設選擇「主管指派」
+                const supervisorAssignedRadio = sections.official.querySelector('input[value="主管指派"]');
+                if (supervisorAssignedRadio) {
+                    supervisorAssignedRadio.checked = true;
+                }
             } else if (val === '急診機動 (20點/時)') {
                 sections.mobile.classList.remove('hidden');
                 sections.mobile.querySelectorAll('input[type="radio"]').forEach(r => r.required = true);
@@ -615,6 +676,7 @@
             queryEmpNameDisplay.classList.add('hidden');
             queryEmpError.classList.add('hidden');
             resetFormToDefault(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         btnOutlookQuery.addEventListener('click', () => {
@@ -668,7 +730,7 @@
                 try {
                     result = JSON.parse(text);
                 } catch (e) {
-                    throw new Error("伺服器回傳格式異常，請確認 GAS 程式碼是否正確。");
+                    throw new Error("伺服器回傳格式異常");
                 }
                 if (result.success) {
                     alert(result.message);
@@ -731,9 +793,7 @@
         });
 
         queryModal.addEventListener('click', (e) => {
-            if (e.target === queryModal) {
-                queryModal.classList.add('hidden');
-            }
+            if (e.target === queryModal) queryModal.classList.add('hidden');
         });
 
         btnMainSendQuery.addEventListener('click', async () => {
@@ -760,7 +820,6 @@
             document.getElementById('kpiForm').reset();
             setDefaultDate();
             document.getElementById('hours').value = '4'; 
-            isHoursValid = true;
             
             hideAllSections();
             categoryDescBox.classList.add('hidden');
@@ -771,6 +830,7 @@
                 empIdInput.dispatchEvent(new Event('input'));
             } else {
                 nameDisplayBox.classList.add('hidden');
+                secretAdminBtn.classList.add('hidden');
                 isEmpValid = false;
             }
         }
@@ -783,14 +843,22 @@
                 return;
             }
 
-            if (!isEmpValid) {
+            if (!isEmpValid || !employeeData[empIdInput.value.toUpperCase()]) {
                 empIdInput.focus();
                 empError.classList.remove('hidden');
                 return;
             }
-            if (!isHoursValid || hoursInput.value === '') {
+            
+            const hoursVal = parseFloat(hoursInput.value);
+            if (isNaN(hoursVal) || hoursVal % 0.5 !== 0 || hoursVal <= 0) {
                 hoursInput.focus();
                 hoursError.classList.remove('hidden');
+                return;
+            }
+
+            const shiftValue = getSelectedShift();
+            if (!shiftValue) {
+                alert('請選擇申報班別！');
                 return;
             }
 
@@ -810,14 +878,14 @@
                 const checkedRadio = document.querySelector('input[name="secondManpowerArea"]:checked');
                 supportAreaValue = checkedRadio ? checkedRadio.value : '';
             } else if (categoryValue === '支援 (20點/時)') {
-                supportAreaValue = supportAreaInput.value;
+                supportAreaValue = document.getElementById('supportArea').value;
             }
             
             const payload = {
                 action: 'submit',
                 data: {
                     workDate: formData.get('workDate'),
-                    workShift: formData.get('workShift'),
+                    workShift: shiftValue, 
                     empId: formData.get('empId').toUpperCase(),
                     empName: employeeData[formData.get('empId').toUpperCase()],
                     category: categoryValue,
@@ -853,7 +921,7 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                statusMsg.innerHTML = '❌ 伺服器無回應，但資料可能已送出，請重新整理確認。';
+                statusMsg.innerHTML = '❌ 伺服器無回應，請重新整理確認。';
                 statusMsg.className = 'text-center p-3.5 rounded-xl font-medium bg-[#fcf0f0] text-[#c95d5d] block mt-4 border border-[#f7dcdc]';
                 statusMsg.classList.remove('hidden');
                 setTimeout(() => {
