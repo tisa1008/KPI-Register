@@ -46,7 +46,7 @@
     <div class="max-w-4xl mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-10 flex flex-col">
         
         <!-- ★ 標題列 -->
-        <div class="flex items-center justify-between mb-6 border-b border-gray-100 pb-4">
+        <div class="flex items-center justify-between mb-5 border-b border-gray-100 pb-4">
             <h2 class="text-2xl font-bold theme-text-main tracking-wide">放射師 KPI 申報表</h2>
             
             <div class="flex items-center gap-3">
@@ -54,7 +54,7 @@
                 <button type="button" id="secretAdminBtn" onclick="checkAdmin()" 
                         class="hidden flex items-center text-sm bg-yellow-50 hover:bg-yellow-100 text-yellow-700 font-medium px-4 py-2.5 rounded-xl transition-all shadow-sm border border-yellow-200">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
-                    切換主管版
+                    <span>切換主管版</span>
                 </button>
                 
                 <button type="button" id="btnOpenQueryModal" 
@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <!-- ★ 系統說明區塊 (為同仁移至最上方) -->
+        <!-- ★ 系統說明區塊 -->
         <div class="mb-8 p-4 bg-[#f8faf9] rounded-xl border border-[#eef2f0] text-sm text-[#5c7a6f] flex items-start shadow-sm">
             <svg class="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -297,11 +297,12 @@
     <div id="successModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all">
             <div class="text-center mb-8">
-                <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-[#eef5f2] mb-5">
-                    <svg class="h-7 w-7 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                <!-- 動態替換圖示與顏色 -->
+                <div id="modalIconBox" class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-[#eef5f2] mb-5 transition-colors">
+                    <svg id="modalIcon" class="h-7 w-7 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                 </div>
-                <h3 class="text-xl font-bold theme-text-main">申報成功</h3>
-                <p class="text-sm text-gray-500 mt-2">感謝您的填寫，資料已送出。</p>
+                <h3 id="modalTitle" class="text-xl font-bold theme-text-main">申報成功</h3>
+                <p id="modalDesc" class="text-sm text-gray-500 mt-2">感謝您的填寫，資料已送出。</p>
             </div>
             
             <div class="flex flex-col space-y-3.5">
@@ -313,7 +314,7 @@
                 </button>
             </div>
 
-            <!-- Outlook 查詢區塊 (預設隱藏) -->
+            <!-- Outlook 查詢區塊 -->
             <div id="outlookQuerySection" class="hidden mt-6 pt-6 border-t border-gray-100">
                 <div class="mb-4">
                     <label class="block text-sm font-medium theme-text-sub mb-1.5">員工編號</label>
@@ -377,15 +378,37 @@
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpebWiI30_ybYnam19fG9qRrn6tGh4EIS7J-7SxOQkkyio7Dha7Fu97E64ReAzfnXhzw/exec';
         const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbxN266G9nOteMtxxHnhhhlodNF1eYEgNS0_9PTj4QziSzOM3RvjiiM3DfMYn0RtUndf/exec';
 
-        // ★ 主管隱藏通道驗證邏輯
-        function checkAdmin() {
+        // ★ 新增：非同步伺服器驗證 (不再將密碼寫死在前端)
+        async function checkAdmin() {
             const pwd = prompt("請輸入主管專用驗證密碼：");
-            // ★ 可修改 密碼
-            if (pwd === "admin1008") {
-                // ★ 已切換至您指定的主管版網址
-                window.location.href = "https://femhmedimage-kpi-vip.netlify.app"; 
-            } else if (pwd !== null) {
-                alert("密碼錯誤，拒絕存取！");
+            if (pwd === null || pwd.trim() === "") return; // 取消或空白不動作
+
+            const btn = document.getElementById('secretAdminBtn');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="flex items-center"><svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-yellow-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>驗證中...</span>';
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'verify_admin', password: pwd })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.url) {
+                    // 後端驗證成功，獲取機密網址並跳轉
+                    window.location.href = result.url; 
+                } else {
+                    alert(result.message || "密碼錯誤，拒絕存取！");
+                }
+            } catch (error) {
+                alert("網路連線異常，請稍後再試。");
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
             }
         }
 
@@ -411,7 +434,6 @@
                     employeeData = result.data;
                     isEmployeeDataLoaded = true;
                     
-                    // 確保 API 載入後，若有員編已輸入，能自動觸發驗證
                     const currentInput = document.getElementById('empId').value;
                     if (currentInput) {
                         document.getElementById('empId').dispatchEvent(new Event('input'));
@@ -614,13 +636,12 @@
                 supportAreaInput.required = true;
             } else if (val === '行政公務 (20點/時)' || val === '教學公務 (20點/時)') {
                 sections.official.classList.remove('hidden');
-                const radios = sections.official.querySelectorAll('input[type="radio"]');
-                radios.forEach(r => r.required = true);
+                sections.official.querySelectorAll('input[type="radio"]').forEach(r => r.required = true);
                 
-                // ★ 預設選擇「主管指派」
                 const supervisorAssignedRadio = sections.official.querySelector('input[value="主管指派"]');
                 if (supervisorAssignedRadio) {
                     supervisorAssignedRadio.checked = true;
+                    supervisorAssignedRadio.dispatchEvent(new Event('change'));
                 }
             } else if (val === '急診機動 (20點/時)') {
                 sections.mobile.classList.remove('hidden');
@@ -852,7 +873,7 @@
             const hoursVal = parseFloat(hoursInput.value);
             if (isNaN(hoursVal) || hoursVal % 0.5 !== 0 || hoursVal <= 0) {
                 hoursInput.focus();
-                hoursError.classList.remove('hidden');
+                document.getElementById('hoursError').classList.remove('hidden');
                 return;
             }
 
@@ -885,7 +906,7 @@
                 action: 'submit',
                 data: {
                     workDate: formData.get('workDate'),
-                    workShift: shiftValue, 
+                    workShift: shiftValue,
                     empId: formData.get('empId').toUpperCase(),
                     empName: employeeData[formData.get('empId').toUpperCase()],
                     category: categoryValue,
@@ -911,16 +932,37 @@
                     data = JSON.parse(text);
                 } catch (err) {
                     console.error("伺服器回傳非 JSON 格式：", text);
-                    data = { success: true }; 
+                    data = { success: true, hasWarning: false }; 
                 }
 
                 if (data.success || data.result === "success") {
+                    
+                    // ★ 根據後端回傳的 hasWarning 決定跳出綠色成功還是橘色警告
+                    const modalTitle = document.getElementById('modalTitle');
+                    const modalDesc = document.getElementById('modalDesc');
+                    const modalIconBox = document.getElementById('modalIconBox');
+
+                    if (data.hasWarning) {
+                        modalTitle.textContent = "資料已送出 (請留意)";
+                        modalTitle.className = "text-xl font-bold text-[#d97706]";
+                        modalDesc.innerHTML = "感謝您的填寫，資料已記錄。<br><br><span class='text-red-500 font-medium'>⚠️ 系統偵測到您在該日已有相同班別與類別的申報。</span><br>若為不同時段支援屬正常現象，無需理會；若為誤填請聯繫組長。";
+                        modalIconBox.className = "mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-[#fef3c7] mb-5";
+                        modalIconBox.innerHTML = '<svg class="h-7 w-7 text-[#d97706]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+                    } else {
+                        modalTitle.textContent = "申報成功";
+                        modalTitle.className = "text-xl font-bold theme-text-main";
+                        modalDesc.innerHTML = "感謝您的填寫，資料已順利送出至雲端。";
+                        modalIconBox.className = "mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-[#eef5f2] mb-5";
+                        modalIconBox.innerHTML = '<svg class="h-7 w-7 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
+                    }
+
                     successModal.classList.remove('hidden');
                 } else {
                     throw new Error(data.message || data.error || "未知錯誤");
                 }
             } catch (error) {
                 console.error('Error:', error);
+                const statusMsg = document.getElementById('statusMessage');
                 statusMsg.innerHTML = '❌ 伺服器無回應，請重新整理確認。';
                 statusMsg.className = 'text-center p-3.5 rounded-xl font-medium bg-[#fcf0f0] text-[#c95d5d] block mt-4 border border-[#f7dcdc]';
                 statusMsg.classList.remove('hidden');
