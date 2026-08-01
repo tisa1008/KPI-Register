@@ -24,26 +24,46 @@
         .theme-ring:focus { box-shadow: 0 0 0 2px #8ab8a8; border-color: #528a7a; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
+        
+        /* 查詢視窗 Tab 切換樣式 */
+        .tab-btn { border-bottom-width: 2px; border-color: transparent; color: #a0aec0; transition: all 0.2s; }
+        .tab-btn.active { border-color: #528a7a; color: #528a7a; font-weight: bold; }
     </style>
 </head>
 <body class="theme-bg p-4 md:p-8 min-h-screen text-[#4a5568]">
 
-    <div class="max-w-4xl mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-10 flex flex-col">
+    <div class="max-w-4xl mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-10 flex flex-col relative">
         
-        <!-- 標題列 (已移除切換主管版按鈕，徹底將入口分離) -->
-        <div class="flex items-center justify-between mb-5 border-b border-gray-100 pb-4">
+        <!-- ★ 修改點 3：新增微小的版本序號 -->
+        <div class="absolute top-4 right-6 text-[11px] text-gray-400 font-mono tracking-wider">
+            202608020009版
+        </div>
+
+        <!-- 標題列 -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 border-b border-gray-100 pb-4 gap-3 mt-4 sm:mt-0">
             <h2 class="text-2xl font-bold theme-text-main tracking-wide">放射師 KPI 申報表</h2>
-            <button type="button" onclick="document.getElementById('queryModal').classList.remove('hidden')" class="flex items-center text-sm bg-[#eef5f2] hover:bg-[#dfeee8] text-[#528a7a] font-medium px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap shadow-sm">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path></svg>
-                查詢紀錄
-            </button>
+            
+            <div class="flex items-center gap-3">
+                <!-- ★ 修改點 1：特權員編專用的主管版入口 (預設隱藏) -->
+                <a href="https://femhmedimage-kpi-admin.netlify.app" id="adminLinkBtn" class="hidden flex items-center justify-center text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap shadow-sm border border-indigo-100">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    切換至主管版
+                </a>
+
+                <!-- 開啟雙軌查詢視窗按鈕 -->
+                <button type="button" onclick="openQueryModal()" class="flex items-center justify-center text-sm bg-[#eef5f2] hover:bg-[#dfeee8] text-[#528a7a] font-medium px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap shadow-sm">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path></svg>
+                    申報紀錄查詢 / 留存
+                </button>
+            </div>
         </div>
 
         <div class="mb-8 p-4 bg-[#f8faf9] rounded-xl border border-[#eef2f0] text-sm text-[#5c7a6f] flex items-start shadow-sm">
             <svg class="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <p class="leading-relaxed">2026.08 正式啟用，使用相關問題請聯繫行政組長處理。每月 2 日結束後統計上月份紀錄，請記得登記。</p>
+            <p class="leading-relaxed">新 KPI 人力申報表預計 2026.08 正式啟用，每月 2 日結束後統計上月份紀錄，請記得登記。如有修改紀錄之需求請聯繫行政組長。</p>
         </div>
 
+        <!-- 申報表單 -->
         <form id="kpiForm" class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6 flex-grow">
             <!-- 左欄：基本資料 -->
             <div class="space-y-6">
@@ -58,7 +78,13 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium theme-text-sub mb-1.5">日期 <span class="text-[#c95d5d]">*</span></label>
-                    <input type="date" id="workDate" name="workDate" required class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+                    <div class="flex items-center gap-2">
+                        <!-- ★ 修改點 2：移除預設日期，保留空白，新增「帶入當日」按鈕 -->
+                        <input type="date" id="workDate" name="workDate" required class="w-full flex-grow border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+                        <button type="button" onclick="setTodayDate()" class="flex-shrink-0 bg-white border border-[#dce5e2] text-[#528a7a] hover:bg-[#eef5f2] font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm whitespace-nowrap active:scale-95">
+                            當日
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium theme-text-sub mb-2">實際申報時段(非班別) <span class="text-[#c95d5d]">*</span></label>
@@ -114,9 +140,6 @@
                                 <label class="cursor-pointer"><input type="radio" name="secondManpowerArea" value="病房" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-2 py-2 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors">病房</div></label>
                                 <label class="cursor-pointer"><input type="radio" name="secondManpowerArea" value="其它" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-2 py-2 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors">其它</div></label>
                             </div>
-                            <div id="supportAreaDescBox" class="hidden mt-3 p-3 bg-[#fdfbf7] text-[#9c8466] rounded-xl border border-[#f2eadd] text-sm flex items-start">
-                                <span id="supportAreaDescText" class="leading-relaxed"></span>
-                            </div>
                         </div>
                     </div>
                     <div id="section-official" class="dynamic-section hidden bg-[#f8faf9] p-4 rounded-xl border border-[#eef2f0] shadow-sm">
@@ -167,7 +190,7 @@
         </form>
     </div>
 
-    <!-- 成功小視窗 -->
+    <!-- 送出成功小視窗 -->
     <div id="successModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all text-center">
             <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-[#eef5f2] mb-5">
@@ -181,7 +204,7 @@
         </div>
     </div>
 
-    <!-- ★ 全新攔截：重複確認視窗 -->
+    <!-- 重複確認視窗 -->
     <div id="duplicateModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-[60] px-4 transition-opacity">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all text-center">
             <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-[#fef3c7] mb-5">
@@ -189,7 +212,7 @@
             </div>
             <h3 class="text-xl font-bold text-[#d97706] mb-3">發現重複資料</h3>
             <p class="text-sm text-gray-600 mb-6 leading-relaxed">
-                系統發現您在<strong class="text-gray-800">該日</strong>已經有<strong class="text-gray-800">相同班別與類別</strong>的申報。<br><br>若這是不同時段的支援，請點擊「強制送出」；若為不小心選錯日期，請點擊「返回修改」。
+                系統發現您在<strong class="text-gray-800">該日</strong>已經有<strong class="text-gray-800">相同班別與類別</strong>的申報。<br><br>若這是不同時段的支援，請點擊「強制送出」；若為選錯日期，請點擊「返回修改」。
             </p>
             <div class="flex flex-col space-y-3">
                 <button type="button" onclick="closeDuplicateModal()" class="w-full bg-white border-2 border-gray-300 text-gray-600 font-medium py-3 rounded-xl hover:bg-gray-50 transition duration-200">
@@ -203,40 +226,90 @@
         </div>
     </div>
 
-    <!-- 查詢紀錄視窗 -->
-    <div id="queryModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold theme-text-main">查詢申報紀錄</h3>
-                <button type="button" onclick="document.getElementById('queryModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+    <!-- 雙軌查詢視窗 -->
+    <div id="queryModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity py-10">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl transform transition-all flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold theme-text-main">申報紀錄查詢與留存</h3>
+                <button type="button" onclick="closeQueryModal()" class="text-gray-400 hover:text-gray-600 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
-            <p class="text-sm text-gray-500 mb-6">可直接查詢並寄送至您的信箱</p>
-            <div class="mb-4">
-                <label class="block text-sm font-medium theme-text-sub mb-1.5">員工編號</label>
-                <input type="text" id="mainQueryEmpId" placeholder="5碼員編" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors">
-                <p id="mainQueryEmpNameDisplay" class="text-sm text-[#528a7a] mt-1.5 hidden font-medium flex items-center"><span></span></p>
-                <p id="mainQueryEmpError" class="text-[#c95d5d] text-sm mt-1.5 hidden font-medium flex items-center">員編錯誤，請重新輸入。</p>
+            
+            <!-- 分頁按鈕 -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button type="button" id="tabInstant" onclick="switchQueryTab('instant')" class="tab-btn active w-1/2 pb-3 text-center text-sm font-medium">及時查詢 (開新網頁)</button>
+                <button type="button" id="tabEmail" onclick="switchQueryTab('email')" class="tab-btn w-1/2 pb-3 text-center text-sm font-medium">E-MAIL 留存</button>
             </div>
-            <div class="mb-5">
-                <label class="block text-sm font-medium theme-text-sub mb-1.5">查詢月份</label>
-                <input type="month" id="mainQueryMonth" required class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+
+            <!-- 共用查詢輸入區 -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium theme-text-sub mb-1.5">員工編號</label>
+                    <input type="text" id="queryEmpId" placeholder="5碼員編" class="w-full border theme-input-border rounded-xl px-4 py-2 outline-none theme-ring theme-input-bg transition-colors">
+                    <p id="queryEmpError" class="text-[#c95d5d] text-xs mt-1.5 hidden font-medium">員編錯誤</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium theme-text-sub mb-1.5">查詢月份</label>
+                    <input type="month" id="queryMonth" required class="w-full border theme-input-border rounded-xl px-4 py-2 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+                </div>
             </div>
-            <button id="btnMainSendQuery" class="w-full bg-[#4a7c6b] text-white px-4 py-3 rounded-xl hover:bg-[#3d6658] transition duration-200 font-medium flex justify-center items-center">送出查詢信件</button>
+
+            <!-- 分頁 1：及時查詢 (開新網頁) -->
+            <div id="contentInstant" class="flex flex-col">
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4">
+                    <label class="block text-sm font-medium text-blue-800 mb-2">安全驗證密碼 <span class="text-xs text-blue-600 font-normal">(到職日月 4 碼，如 1月1日請輸入 0101)</span></label>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="queryPassword" maxlength="4" placeholder="MMDD" class="w-full border border-blue-200 rounded-xl px-4 py-2 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-colors text-center tracking-widest text-lg mb-3 font-mono">
+                    
+                    <label class="flex items-start cursor-pointer group">
+                        <input type="checkbox" id="queryConfirmCheck" class="mt-1 w-4 h-4 text-[#528a7a] rounded border-gray-300 focus:ring-[#528a7a]">
+                        <span class="ml-2 text-sm text-blue-800 group-hover:text-blue-900 transition-colors leading-relaxed">
+                            我確認查詢人為該員編之持有人。
+                        </span>
+                    </label>
+                </div>
+
+                <button type="button" id="btnInstantQuery" onclick="executeInstantQuery()" class="w-full bg-[#528a7a] text-white px-4 py-3 rounded-xl hover:bg-[#437365] transition duration-200 font-bold shadow-sm flex justify-center items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    開新視窗查看紀錄
+                </button>
+            </div>
+
+            <!-- 分頁 2：EMAIL 留存專屬內容 -->
+            <div id="contentEmail" class="hidden">
+                <div class="bg-[#f8faf9] border border-[#eef2f0] rounded-xl p-4 mb-6 text-sm text-[#5c7a6f] leading-relaxed">
+                    此功能將直接彙整您指定月份的紀錄，並寄送至您的專屬醫院信箱 (femh<span class="font-bold">員編</span>@femh.org.tw)。<br><br>
+                    <span class="text-orange-600 font-medium">⚠️ 提醒：EMAIL寄送功能可能需要3~5分鐘，請耐心等候。</span>
+                </div>
+                <button type="button" id="btnEmailQuery" onclick="executeEmailQuery()" class="w-full bg-purple-600 text-white px-4 py-3 rounded-xl hover:bg-purple-700 transition duration-200 font-bold shadow-sm">
+                    送出留存信件
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        // ★ 請確認此處為您最新的 GAS 網址
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNBbuRgRi2QUC6PEpklFT1CuoLg4Ovan__ChG8LW2rRlS6tPu1wrNkZOktq-1O7ikBDg/exec';
-        const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbxN266G9nOteMtxxHnhhhlodNF1eYEgNS0_9PTj4QziSzOM3RvjiiM3DfMYn0RtUndf/exec';
+        // ★ KPI 後端 API
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyp0IMenC2GrKBoJN3Qvi826RkoupdPyOmuX1lLMrCVmccclAD8lOfCVAVQmjT5U0Grrg/exec';
+        // ★ 員工主檔 API
+        const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbwJoKEynFyNUCYCM8BPRvFBrG87ASNciYH6UGB01KVS_3zK5ZTL1z_lzwPaslfxmZdF/exec';
 
-        function setDefaultDate() {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            document.getElementById('workDate').value = `${yyyy}-${mm}-${dd}`;
-            document.getElementById('mainQueryMonth').value = `${yyyy}-${mm}`;
+        // 初始化設定 (僅設定查詢月份預設值，申報日期留空)
+        function initDefaultMonth() {
+            const t = new Date(), y = t.getFullYear(), m = String(t.getMonth() + 1).padStart(2, '0');
+            document.getElementById('queryMonth').value = `${y}-${m}`;
+        }
+        
+        // ★ 修改點 2：取得台灣當日時間並填入
+        function setTodayDate() {
+            const t = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Taipei"}));
+            const y = t.getFullYear();
+            const m = String(t.getMonth() + 1).padStart(2, '0');
+            const d = String(t.getDate()).padStart(2, '0');
+            document.getElementById('workDate').value = `${y}-${m}-${d}`;
+            
+            // 點擊後按鈕產生視覺回饋
+            const btn = document.querySelector('button[onclick="setTodayDate()"]');
+            btn.classList.add('bg-[#eef5f2]', 'border-[#528a7a]');
+            setTimeout(() => btn.classList.remove('bg-[#eef5f2]', 'border-[#528a7a]'), 300);
         }
 
         let employeeData = {};
@@ -254,16 +327,13 @@
             } catch (error) { console.error('員工資料載入失敗：', error); }
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            setDefaultDate();
-            await loadEmployeeData();
-        });
+        document.addEventListener('DOMContentLoaded', async () => { initDefaultMonth(); await loadEmployeeData(); });
 
         const categoryDescriptions = {
             "臨床教學-在職人員 (5點/時)": "臨床教學(在職訓練、PGY、代訓...)，請註記訓練機房。", "臨床教學-實習生 (2.5點/時)": "臨床教學(實習生)時填報，請註記訓練機房。",
             "臨床受訓 (15點/時)": "臨床受訓人員點值補充(在職訓練、PGY)。", "第二人力 (20點/時)": "雙人作業機房（ASRCT、MR1、病房）點值補充，「獨立作業時間」請勿申報。",
-            "支援 (20點/時)": "支援非雙人作業機房點值補充。", "行政公務 (20點/時)": "行政公務點值補充；含有行政職位或賦予行政業務者，可選擇【自行申請】。",
-            "教學公務 (20點/時)": "教學公務點值補充；含有教學職位或賦予教學業務者，可選擇【自行申請】。", "急診機動 (20點/時)": "急診區4人以上作業時填報點值補充。"
+            "支援 (20點/時)": "支援非雙人作業機房點值補充。", "行政公務 (20點/時)": "行政公務點值補充；可選擇【自行申請】。",
+            "教學公務 (20點/時)": "教學公務點值補充；可選擇【自行申請】。", "急診機動 (20點/時)": "急診區4人以上作業時填報點值補充。"
         };
         const hoursAutoRules = { "病房": { "AM": 2, "PM": 2 }, "ASRCT": { "AM": 3, "PM": 4, "B.D": 7, "10-12": 1, "10-17": 5 }, "MR1": { "AM": 2, "PM": 1.5, "B.D": 3.5, "17-21": 2, "8-21": 5.5, "G": 3.5 } };
 
@@ -271,234 +341,287 @@
         const nameDisplayBox = document.getElementById('nameDisplayBox');
         const empNameSpan = document.getElementById('empName');
         const empError = document.getElementById('empError');
+        const adminLinkBtn = document.getElementById('adminLinkBtn');
         let isEmpValid = false;
 
         empIdInput.addEventListener('input', function() {
-            let id = this.value.trim().toUpperCase();
-            this.value = id; 
-            if (id === '') { nameDisplayBox.classList.add('hidden'); empError.classList.add('hidden'); isEmpValid = false; return; }
-            if (employeeData[id]) {
-                empNameSpan.textContent = employeeData[id];
-                nameDisplayBox.classList.remove('hidden'); empError.classList.add('hidden'); isEmpValid = true;
+            let id = this.value.trim().toUpperCase(); this.value = id; 
+            
+            // ★ 修改點 1：特權員編專用入口判斷
+            if (id === '91439') {
+                adminLinkBtn.classList.remove('hidden');
             } else {
-                nameDisplayBox.classList.add('hidden'); empError.classList.remove('hidden'); isEmpValid = false;
+                adminLinkBtn.classList.add('hidden');
+            }
+            
+            if (id === '') { nameDisplayBox.classList.add('hidden'); empError.classList.add('hidden'); isEmpValid = false; return; }
+            if (employeeData[id]) { 
+                empNameSpan.textContent = employeeData[id].name; 
+                nameDisplayBox.classList.remove('hidden'); empError.classList.add('hidden'); isEmpValid = true; 
+            } else { 
+                nameDisplayBox.classList.add('hidden'); empError.classList.remove('hidden'); isEmpValid = false; 
             }
         });
 
         const hoursInput = document.getElementById('hours');
         hoursInput.addEventListener('input', function() {
             const val = parseFloat(this.value);
-            if (this.value !== '' && (isNaN(val) || val % 0.5 !== 0 || val <= 0)) document.getElementById('hoursError').classList.remove('hidden');
-            else document.getElementById('hoursError').classList.add('hidden');
+            if (this.value !== '' && (isNaN(val) || val % 0.5 !== 0 || val <= 0)) document.getElementById('hoursError').classList.remove('hidden'); else document.getElementById('hoursError').classList.add('hidden');
         });
-
         document.getElementById('hoursMinusBtn').addEventListener('click', () => adjustHours(-0.5));
         document.getElementById('hoursPlusBtn').addEventListener('click', () => adjustHours(0.5));
-        function adjustHours(delta) {
-            let val = parseFloat(hoursInput.value); if (isNaN(val)) val = 0;
-            val = Math.round((val + delta) * 10) / 10; if (val < 0.5) val = 0.5;
-            hoursInput.value = val; hoursInput.dispatchEvent(new Event('input'));
-        }
-
+        function adjustHours(delta) { let val = parseFloat(hoursInput.value); if (isNaN(val)) val = 0; val = Math.round((val + delta) * 10) / 10; if (val < 0.5) val = 0.5; hoursInput.value = val; hoursInput.dispatchEvent(new Event('input')); }
         function getSelectedShift() { return document.querySelector('input[name="workShift"]:checked')?.value || ''; }
-
+        
         const categorySelect = document.getElementById('category');
         const sections = { training: document.getElementById('section-training'), support: document.getElementById('section-support'), official: document.getElementById('section-official'), mobile: document.getElementById('section-mobile') };
         const supportTextBlock = document.getElementById('supportTextBlock'), secondManpowerBlock = document.getElementById('secondManpowerBlock'), supportAreaInput = document.getElementById('supportArea');
         const secondManpowerRadios = document.querySelectorAll('input[name="secondManpowerArea"]');
-
         document.getElementById('trainingArea').addEventListener('input', e => e.target.value = e.target.value.toUpperCase());
         supportAreaInput.addEventListener('input', e => e.target.value = e.target.value.toUpperCase());
 
         function calculateSecondManpowerHours() {
             if (categorySelect.value !== '第二人力 (20點/時)') return;
-            const shift = getSelectedShift(), checkedRadio = document.querySelector('input[name="secondManpowerArea"]:checked');
-            const area = checkedRadio ? checkedRadio.value : '';
+            const shift = getSelectedShift(), checkedRadio = document.querySelector('input[name="secondManpowerArea"]:checked'), area = checkedRadio ? checkedRadio.value : '';
             let autoHours = 4;
-            if (area && hoursAutoRules[area] && hoursAutoRules[area][shift] !== undefined) {
-                autoHours = hoursAutoRules[area][shift];
-                document.getElementById('autoHoursHint').classList.remove('hidden');
-            } else { document.getElementById('autoHoursHint').classList.add('hidden'); }
+            if (area && hoursAutoRules[area] && hoursAutoRules[area][shift] !== undefined) { autoHours = hoursAutoRules[area][shift]; document.getElementById('autoHoursHint').classList.remove('hidden'); } 
+            else { document.getElementById('autoHoursHint').classList.add('hidden'); }
             hoursInput.value = autoHours; hoursInput.dispatchEvent(new Event('input'));
         }
-
         document.querySelectorAll('input[name="workShift"]').forEach(radio => radio.addEventListener('change', calculateSecondManpowerHours));
         secondManpowerRadios.forEach(radio => radio.addEventListener('change', calculateSecondManpowerHours));
 
         function hideAllSections() {
-            Object.values(sections).forEach(sec => {
-                sec.classList.add('hidden');
-                sec.querySelectorAll('input[type="text"], input[type="radio"]').forEach(input => {
-                    input.required = false; if (input.type === 'radio') input.checked = false; else input.value = '';
-                });
-            });
+            Object.values(sections).forEach(sec => { sec.classList.add('hidden'); sec.querySelectorAll('input[type="text"], input[type="radio"]').forEach(input => { input.required = false; if (input.type === 'radio') input.checked = false; else input.value = ''; }); });
             supportTextBlock.classList.remove('hidden'); secondManpowerBlock.classList.add('hidden'); document.getElementById('autoHoursHint').classList.add('hidden');
         }
 
         categorySelect.addEventListener('change', function() {
             hideAllSections(); const val = this.value;
-            if (categoryDescriptions[val]) {
-                document.getElementById('categoryDescText').textContent = categoryDescriptions[val];
-                document.getElementById('categoryDescBox').classList.remove('hidden');
-            } else { document.getElementById('categoryDescBox').classList.add('hidden'); }
+            if (categoryDescriptions[val]) { document.getElementById('categoryDescText').textContent = categoryDescriptions[val]; document.getElementById('categoryDescBox').classList.remove('hidden'); } 
+            else { document.getElementById('categoryDescBox').classList.add('hidden'); }
 
-            if (val.includes('臨床教學') || val === '臨床受訓 (15點/時)') {
-                sections.training.classList.remove('hidden'); document.getElementById('trainingArea').required = true;
-            } else if (val === '第二人力 (20點/時)') {
-                sections.support.classList.remove('hidden'); supportTextBlock.classList.add('hidden'); secondManpowerBlock.classList.remove('hidden');
-                secondManpowerRadios.forEach(r => r.required = true); calculateSecondManpowerHours(); 
-            } else if (val === '支援 (20點/時)') {
-                sections.support.classList.remove('hidden'); secondManpowerBlock.classList.add('hidden'); supportTextBlock.classList.remove('hidden'); supportAreaInput.required = true;
-            } else if (val.includes('公務')) {
-                sections.official.classList.remove('hidden'); sections.official.querySelectorAll('input[type="radio"]').forEach(r => r.required = true);
-                const supervisorAssignedRadio = sections.official.querySelector('input[value="主管指派"]'); if (supervisorAssignedRadio) supervisorAssignedRadio.checked = true;
-            } else if (val === '急診機動 (20點/時)') {
-                sections.mobile.classList.remove('hidden'); sections.mobile.querySelectorAll('input[type="radio"]').forEach(r => r.required = true);
-            }
+            if (val.includes('臨床教學') || val === '臨床受訓 (15點/時)') { sections.training.classList.remove('hidden'); document.getElementById('trainingArea').required = true; } 
+            else if (val === '第二人力 (20點/時)') { sections.support.classList.remove('hidden'); supportTextBlock.classList.add('hidden'); secondManpowerBlock.classList.remove('hidden'); secondManpowerRadios.forEach(r => r.required = true); calculateSecondManpowerHours(); } 
+            else if (val === '支援 (20點/時)') { sections.support.classList.remove('hidden'); secondManpowerBlock.classList.add('hidden'); supportTextBlock.classList.remove('hidden'); supportAreaInput.required = true; } 
+            else if (val.includes('公務')) { sections.official.classList.remove('hidden'); sections.official.querySelectorAll('input[type="radio"]').forEach(r => r.required = true); const supervisorAssignedRadio = sections.official.querySelector('input[value="主管指派"]'); if (supervisorAssignedRadio) supervisorAssignedRadio.checked = true; } 
+            else if (val === '急診機動 (20點/時)') { sections.mobile.classList.remove('hidden'); sections.mobile.querySelectorAll('input[type="radio"]').forEach(r => r.required = true); }
             checkNotesRequired();
         });
 
         const notesInput = document.getElementById('notes');
         function checkNotesRequired() {
-            let isSelfApplied = false;
-            document.querySelectorAll('input[name="taskSource"]').forEach(radio => { if (radio.checked && radio.value === '自行申請') isSelfApplied = true; });
-            if ((categorySelect.value.includes('公務')) && isSelfApplied) {
-                notesInput.required = true; document.getElementById('notesRequiredStar').classList.remove('hidden'); document.getElementById('notesOptionalText').classList.add('hidden');
-                notesInput.placeholder = "您選擇了「自行申請」，請務必在此填寫事由說明..."; notesInput.classList.add('bg-[#fffbf0]', 'border-[#f2eadd]');
-            } else {
-                notesInput.required = false; document.getElementById('notesRequiredStar').classList.add('hidden'); document.getElementById('notesOptionalText').classList.remove('hidden');
-                notesInput.placeholder = "若有其他說明請填寫於此..."; notesInput.classList.remove('bg-[#fffbf0]', 'border-[#f2eadd]');
-            }
+            let isSelfApplied = false; document.querySelectorAll('input[name="taskSource"]').forEach(radio => { if (radio.checked && radio.value === '自行申請') isSelfApplied = true; });
+            if ((categorySelect.value.includes('公務')) && isSelfApplied) { notesInput.required = true; document.getElementById('notesRequiredStar').classList.remove('hidden'); document.getElementById('notesOptionalText').classList.add('hidden'); notesInput.placeholder = "您選擇了「自行申請」，請務必在此填寫事由說明..."; notesInput.classList.add('bg-[#fffbf0]', 'border-[#f2eadd]'); } 
+            else { notesInput.required = false; document.getElementById('notesRequiredStar').classList.add('hidden'); document.getElementById('notesOptionalText').classList.remove('hidden'); notesInput.placeholder = "若有其他說明請填寫於此..."; notesInput.classList.remove('bg-[#fffbf0]', 'border-[#f2eadd]'); }
         }
         document.querySelectorAll('input[name="taskSource"]').forEach(radio => radio.addEventListener('change', checkNotesRequired));
 
-        document.getElementById('btnContinue').addEventListener('click', () => {
-            document.getElementById('successModal').classList.add('hidden');
-            resetFormToDefault(true);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
+        document.getElementById('btnContinue').addEventListener('click', () => { document.getElementById('successModal').classList.add('hidden'); resetFormToDefault(true); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        
         function resetFormToDefault(keepEmpId = false) {
-            const currentEmpId = empIdInput.value; 
-            document.getElementById('kpiForm').reset();
-            setDefaultDate();
+            const currentEmpId = empIdInput.value; document.getElementById('kpiForm').reset(); 
+            // 申報日期留空，僅預設查詢月份
+            initDefaultMonth(); 
             document.getElementById('hours').value = '4'; 
-            hideAllSections();
-            document.getElementById('categoryDescBox').classList.add('hidden');
-            checkNotesRequired();
-            if (keepEmpId && currentEmpId) {
-                empIdInput.value = currentEmpId; empIdInput.dispatchEvent(new Event('input'));
-            } else {
-                nameDisplayBox.classList.add('hidden'); isEmpValid = false;
-            }
+            hideAllSections(); document.getElementById('categoryDescBox').classList.add('hidden'); checkNotesRequired();
+            if (keepEmpId && currentEmpId) { empIdInput.value = currentEmpId; empIdInput.dispatchEvent(new Event('input')); } 
+            else { nameDisplayBox.classList.add('hidden'); isEmpValid = false; adminLinkBtn.classList.add('hidden'); }
         }
 
-        // 查詢信件寄送
-        const mainQueryEmpIdInput = document.getElementById('mainQueryEmpId');
-        mainQueryEmpIdInput.addEventListener('input', function() {
-            let id = this.value.trim().toUpperCase(); this.value = id;
-            if (id === '') { document.getElementById('mainQueryEmpNameDisplay').classList.add('hidden'); document.getElementById('mainQueryEmpError').classList.add('hidden'); return; }
-            if (employeeData[id]) {
-                document.getElementById('mainQueryEmpNameDisplay').querySelector('span').textContent = `查詢對象：${employeeData[id]}`;
-                document.getElementById('mainQueryEmpNameDisplay').classList.remove('hidden'); document.getElementById('mainQueryEmpError').classList.add('hidden');
-            } else {
-                document.getElementById('mainQueryEmpNameDisplay').classList.add('hidden'); document.getElementById('mainQueryEmpError').classList.remove('hidden');
-            }
-        });
-
-        document.getElementById('btnMainSendQuery').addEventListener('click', async () => {
-            if (!employeeData[mainQueryEmpIdInput.value.toUpperCase()]) return document.getElementById('mainQueryEmpError').classList.remove('hidden');
-            const month = document.getElementById('mainQueryMonth').value; if (!month) return alert('請選擇查詢月份！');
-            
-            const btn = document.getElementById('btnMainSendQuery'); const originalText = btn.innerText;
-            btn.disabled = true; btn.innerText = '寄送中...'; btn.classList.add('opacity-70');
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'query', empId: mainQueryEmpIdInput.value, month: month }) });
-                const result = await response.json();
-                if (result.success) { alert(result.message); document.getElementById('queryModal').classList.add('hidden'); mainQueryEmpIdInput.value = ''; } 
-                else { alert('查詢失敗：' + result.message); }
-            } catch (error) { alert('網路錯誤請稍後再試。'); } 
-            finally { btn.disabled = false; btn.innerText = originalText; btn.classList.remove('opacity-70'); }
-        });
-
-        // ================= ★ 議題二：防呆送出與攔截邏輯 =================
-        let pendingSubmitData = null; // 暫存要準備送出的資料
-
+        // ================= ★ 申報資料送出邏輯 =================
+        let pendingSubmitData = null; 
         document.getElementById('kpiForm').addEventListener('submit', function(e) {
             e.preventDefault();
             if (!isEmployeeDataLoaded) return alert('員工資料尚未載入完成，請稍候。');
             if (!isEmpValid) { empIdInput.focus(); empError.classList.remove('hidden'); return; }
-            const hoursVal = parseFloat(hoursInput.value);
-            if (isNaN(hoursVal) || hoursVal % 0.5 !== 0 || hoursVal <= 0) { hoursInput.focus(); document.getElementById('hoursError').classList.remove('hidden'); return; }
+            
+            // 雙重驗證：確保日期真的有填 (防呆)
+            const formData = new FormData(this);
+            if (!formData.get('workDate')) { alert('請點擊「當日」按鈕或手動選擇申報日期！'); return; }
+            
+            if (parseFloat(hoursInput.value) <= 0 || isNaN(parseFloat(hoursInput.value))) { hoursInput.focus(); return; }
             if (!getSelectedShift()) return alert('請選擇申報班別！');
 
-            // 收集資料包
-            const formData = new FormData(this);
             const categoryValue = formData.get('category');
             let supportAreaValue = '';
-            if (categoryValue === '第二人力 (20點/時)') {
-                const checkedRadio = document.querySelector('input[name="secondManpowerArea"]:checked');
-                supportAreaValue = checkedRadio ? checkedRadio.value : '';
-            } else if (categoryValue === '支援 (20點/時)') {
-                supportAreaValue = document.getElementById('supportArea').value;
-            }
+            if (categoryValue === '第二人力 (20點/時)') { const checkedRadio = document.querySelector('input[name="secondManpowerArea"]:checked'); supportAreaValue = checkedRadio ? checkedRadio.value : ''; } 
+            else if (categoryValue === '支援 (20點/時)') { supportAreaValue = document.getElementById('supportArea').value; }
             
             pendingSubmitData = {
-                action: 'submit',
-                forceSubmit: false, // 第一次預設不強制
-                data: {
-                    workDate: formData.get('workDate'), workShift: getSelectedShift(), 
-                    empId: formData.get('empId').toUpperCase(), empName: employeeData[formData.get('empId').toUpperCase()],
-                    category: categoryValue, hours: formData.get('hours'), trainingArea: formData.get('trainingArea'),
-                    supportArea: supportAreaValue, taskSource: formData.get('taskSource'), shift: formData.get('shift'), notes: formData.get('notes')
-                }
+                action: 'submit', forceSubmit: false,
+                data: { workDate: formData.get('workDate'), workShift: getSelectedShift(), empId: formData.get('empId').toUpperCase(), empName: employeeData[formData.get('empId').toUpperCase()].name, category: categoryValue, hours: formData.get('hours'), trainingArea: formData.get('trainingArea'), supportArea: supportAreaValue, taskSource: formData.get('taskSource'), shift: formData.get('shift'), notes: formData.get('notes') }
             };
-
             sendDataToBackend(pendingSubmitData);
         });
 
         async function sendDataToBackend(payload) {
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true; submitBtn.innerText = '資料傳送中...'; submitBtn.classList.replace('theme-primary', 'bg-[#b8c9c3]');
+            const submitBtn = document.getElementById('submitBtn'); submitBtn.disabled = true; submitBtn.innerText = '資料傳送中...'; submitBtn.classList.replace('theme-primary', 'bg-[#b8c9c3]');
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                const data = await response.json();
+                if (data.success) { document.getElementById('duplicateModal').classList.add('hidden'); document.getElementById('successModal').classList.remove('hidden'); } 
+                else if (data.requireConfirmation) { document.getElementById('duplicateModal').classList.remove('hidden'); } 
+                else { throw new Error(data.message || "未知錯誤"); }
+            } catch (error) { alert('伺服器無回應，請重新整理確認。'); } 
+            finally { submitBtn.disabled = false; submitBtn.innerText = '送出申報'; submitBtn.classList.replace('bg-[#b8c9c3]', 'theme-primary'); }
+        }
+
+        function closeDuplicateModal() { document.getElementById('duplicateModal').classList.add('hidden'); pendingSubmitData = null; }
+        function executeForceSubmit() { if (pendingSubmitData) { pendingSubmitData.forceSubmit = true; sendDataToBackend(pendingSubmitData); document.getElementById('duplicateModal').classList.add('hidden'); } }
+
+        // ================= ★ 雙軌查詢系統邏輯 =================
+        const queryEmpIdInput = document.getElementById('queryEmpId');
+        queryEmpIdInput.addEventListener('input', function() {
+            let id = this.value.trim().toUpperCase(); this.value = id;
+            if (id === '' || !employeeData[id]) { document.getElementById('queryEmpError').classList.remove('hidden'); } 
+            else { document.getElementById('queryEmpError').classList.add('hidden'); }
+        });
+
+        function openQueryModal() {
+            if(isEmpValid) { queryEmpIdInput.value = empIdInput.value; queryEmpIdInput.dispatchEvent(new Event('input')); }
+            document.getElementById('queryModal').classList.remove('hidden');
+            switchQueryTab('instant'); 
+            document.getElementById('queryPassword').value = '';
+            document.getElementById('queryConfirmCheck').checked = false;
+        }
+
+        function closeQueryModal() { document.getElementById('queryModal').classList.add('hidden'); }
+
+        function switchQueryTab(tabName) {
+            if (tabName === 'instant') {
+                document.getElementById('tabInstant').classList.add('active'); document.getElementById('tabEmail').classList.remove('active');
+                document.getElementById('contentInstant').classList.remove('hidden'); document.getElementById('contentEmail').classList.add('hidden');
+            } else {
+                document.getElementById('tabEmail').classList.add('active'); document.getElementById('tabInstant').classList.remove('active');
+                document.getElementById('contentEmail').classList.remove('hidden'); document.getElementById('contentInstant').classList.add('hidden');
+            }
+        }
+
+        async function executeInstantQuery() {
+            const empId = queryEmpIdInput.value.trim();
+            const month = document.getElementById('queryMonth').value;
+            const pwd = document.getElementById('queryPassword').value.trim();
+            const isChecked = document.getElementById('queryConfirmCheck').checked;
+
+            if (!employeeData[empId]) return alert('員編錯誤，請重新確認！');
+            if (!month) return alert('請選擇查詢月份！');
+            if (pwd.length !== 4) return alert('請輸入 4 碼到職日月做為驗證密碼！');
+            if (!isChecked) return alert('請勾選本人聲明切結方可查詢！');
+
+            const btn = document.getElementById('btnInstantQuery');
+            const originalText = btn.innerText;
+            btn.disabled = true; btn.innerText = '安全驗證並讀取資料中...'; btn.classList.add('opacity-70');
 
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
+                const response = await fetch(GOOGLE_SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'query_instant', empId: empId, month: month, password: pwd }) 
                 });
+                const result = await response.json();
                 
-                const data = await response.json();
+                if (result.success) {
+                    let rowsHtml = '';
+                    if (result.data.length === 0) {
+                        rowsHtml = '<tr><td colspan="5" style="padding:15px;text-align:center;color:#666;">本月目前無申報紀錄</td></tr>';
+                    } else {
+                        result.data.forEach(item => {
+                            rowsHtml += `
+                                <tr style="border-bottom: 1px solid #eef2f0; transition: background-color 0.2s;">
+                                    <td style="padding: 12px 10px; color: #4a5568;">${item.date}</td>
+                                    <td style="padding: 12px 10px; color: #2d4a41; font-weight: 500;">${item.shift}</td>
+                                    <td style="padding: 12px 10px; color: #2d4a41;">${item.category}</td>
+                                    <td style="padding: 12px 10px; color: #528a7a; font-weight: bold;">${item.hours}</td>
+                                    <td style="padding: 12px 10px; color: #718096; font-size: 13px; max-width: 250px;">${item.note}</td>
+                                </tr>
+                            `;
+                        });
+                    }
 
-                if (data.success) {
-                    document.getElementById('duplicateModal').classList.add('hidden');
-                    document.getElementById('successModal').classList.remove('hidden');
-                } else if (data.requireConfirmation) {
-                    // ★ 被後端攔截，跳出確認視窗
-                    document.getElementById('duplicateModal').classList.remove('hidden');
-                } else {
-                    throw new Error(data.message || "未知錯誤");
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('伺服器無回應，請重新整理確認。');
-            } finally {
-                submitBtn.disabled = false; submitBtn.innerText = '送出申報'; submitBtn.classList.replace('bg-[#b8c9c3]', 'theme-primary');
-            }
+                    const htmlContent = `
+                        <!DOCTYPE html>
+                        <html lang="zh-TW">
+                        <head>
+                            <meta charset="UTF-8">
+                            <title>${result.empName} - ${month} KPI 申報紀錄</title>
+                            <style>
+                                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f3; padding: 20px; color: #2d4a41; }
+                                .container { max-width: 900px; margin: 0 auto; background-color: #ffffff; padding: 30px 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+                                .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #528a7a; padding-bottom: 15px; margin-bottom: 20px; }
+                                .header h2 { margin: 0; color: #2d4a41; font-size: 24px; }
+                                .header .info { font-size: 15px; color: #5c7a6f; }
+                                table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+                                th { background-color: #eef5f2; color: #528a7a; padding: 14px 10px; font-weight: 600; border-bottom: 2px solid #dce5e2; }
+                                tr:hover { background-color: #f8faf9; }
+                                .total-box { margin-top: 30px; padding: 18px 20px; background-color: #fffbf0; border-left: 5px solid #d97706; border-radius: 6px; font-size: 16px; color: #92400e; display: flex; justify-content: space-between; align-items: center; }
+                                .total-number { font-size: 22px; font-weight: bold; color: #d97706; }
+                                .print-btn { padding: 8px 16px; background-color: #528a7a; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+                                .print-btn:hover { background-color: #437365; }
+                                @media print { body { background: white; padding: 0; } .container { box-shadow: none; max-width: 100%; } .print-btn { display: none; } }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <div class="header">
+                                    <h2>🏥 放射師 KPI 申報紀錄 (即時查詢)</h2>
+                                    <div class="info"><strong>姓名：</strong>${result.empName} &nbsp;|&nbsp; <strong>月份：</strong>${month}</div>
+                                </div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th width="12%">日期</th>
+                                            <th width="15%">班別</th>
+                                            <th width="25%">工作類別</th>
+                                            <th width="10%">時數</th>
+                                            <th width="38%">備註 (詳細說明)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>${rowsHtml}</tbody>
+                                </table>
+                                <div class="total-box">
+                                    <span>📊 本月已申報總時數結算</span>
+                                    <span class="total-number">${result.totalHours} 小時</span>
+                                </div>
+                                <div style="text-align: center; margin-top: 30px;">
+                                    <button class="print-btn" onclick="window.print()">列印此頁面留存</button>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                    `;
+
+                    const newWin = window.open('', '_blank');
+                    if(newWin) {
+                        newWin.document.write(htmlContent);
+                        newWin.document.close();
+                        closeQueryModal(); 
+                    } else { alert('⚠️ 開啟失敗：新視窗被瀏覽器阻擋了！請在網址列允許本網站顯示彈出式視窗。'); }
+                    
+                } else { alert('查詢失敗：' + result.message); }
+            } catch (error) { alert('網路錯誤請稍後再試。'); } 
+            finally { btn.disabled = false; btn.innerText = originalText; btn.classList.remove('opacity-70'); }
         }
 
-        // 確認視窗按鈕行為
-        function closeDuplicateModal() {
-            document.getElementById('duplicateModal').classList.add('hidden');
-            pendingSubmitData = null; // 取消送出
-        }
+        async function executeEmailQuery() {
+            const empId = queryEmpIdInput.value.trim();
+            const month = document.getElementById('queryMonth').value;
 
-        function executeForceSubmit() {
-            if (pendingSubmitData) {
-                pendingSubmitData.forceSubmit = true; // 加上強力過關標記
-                sendDataToBackend(pendingSubmitData);
-                document.getElementById('duplicateModal').classList.add('hidden'); // 先關閉視窗，按鈕狀態會由 sendDataToBackend 處理
-            }
+            if (!employeeData[empId]) return alert('員編錯誤，請重新確認！');
+            if (!month) return alert('請選擇查詢月份！');
+            if(!confirm(`即將寄送 ${month} 紀錄至 femh${empId}@femh.org.tw\n\n請問確定要送出嗎？`)) return;
+
+            const btn = document.getElementById('btnEmailQuery');
+            const originalText = btn.innerText;
+            btn.disabled = true; btn.innerText = '系統寄信中...'; btn.classList.add('opacity-70');
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, { 
+                    method: 'POST', body: JSON.stringify({ action: 'query_email', empId: empId, month: month }) 
+                });
+                const result = await response.json();
+                if (result.success) { alert(result.message); closeQueryModal(); } else { alert('寄信失敗：' + result.message); }
+            } catch (error) { alert('網路錯誤請稍後再試。'); } 
+            finally { btn.disabled = false; btn.innerText = originalText; btn.classList.remove('opacity-70'); }
         }
     </script>
 </body>
