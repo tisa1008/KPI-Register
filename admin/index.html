@@ -63,10 +63,15 @@
     <div id="toastContainer" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- 主頁面容器 (登入前預設模糊隱藏) -->
-    <div id="mainContent" class="max-w-5xl mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-8 lg:p-10 flex flex-col blur-sm opacity-50 pointer-events-none transition-all duration-500">
+    <div id="mainContent" class="max-w-5xl mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-8 lg:p-10 flex flex-col blur-sm opacity-50 pointer-events-none transition-all duration-500 relative">
         
+        <!-- ★ 修改點 5：新增版本序號 -->
+        <div class="absolute top-4 right-6 text-[11px] text-gray-400 font-mono tracking-wider">
+            202608030001版
+        </div>
+
         <!-- 標題列與頂部操作區 -->
-        <div class="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4 border-b border-gray-100 pb-5">
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4 border-b border-gray-100 pb-5 mt-4 sm:mt-0">
             <h2 class="text-2xl font-bold theme-text-main tracking-wide flex items-center whitespace-nowrap">
                 放射師 KPI 申報表 
                 <span class="text-xs font-medium text-[#528a7a] bg-[#eef5f2] px-2 py-1 rounded-md ml-3 border border-[#d3e3dc]">主管批次版</span>
@@ -89,14 +94,14 @@
                     </button>
                 </div>
 
-                <!-- ★ 返回同仁版按鈕 -->
+                <!-- 返回同仁版按鈕 -->
                 <a href="https://femhmedimage-kpi-register.netlify.app" 
                    class="flex items-center text-sm bg-white border border-[#d3e3dc] hover:bg-gray-50 text-gray-600 font-medium px-4 py-2 rounded-xl transition-colors whitespace-nowrap shadow-sm">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     回同仁版
                 </a>
 
-                <!-- ★ 匯出結算 CSV 按鈕 -->
+                <!-- 匯出結算 CSV 按鈕 -->
                 <button type="button" onclick="openExportModal()" 
                    class="flex items-center text-sm bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 font-medium px-3 py-2 rounded-xl transition-colors whitespace-nowrap shadow-sm">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -144,9 +149,17 @@
                 <div>
                     <div class="flex items-center justify-between mb-2">
                         <label class="block text-sm font-medium theme-text-sub">申報日期 <span class="text-xs font-normal text-gray-400 ml-1">(可點擊多天)</span> <span class="text-[#c95d5d]">*</span></label>
-                        <div class="flex items-center space-x-2">
-                            <input type="month" id="monthPicker" class="text-sm border theme-input-border rounded-lg px-2 py-1 outline-none theme-ring theme-input-bg text-gray-700">
-                            <button type="button" id="lockDateBtn" class="lock-btn flex items-center justify-center p-1.5 rounded-lg border border-transparent text-gray-400 hover:bg-gray-100" title="鎖定選取的日期">
+                        <!-- ★ 修改點 3：增加上下切換按鈕 -->
+                        <div class="flex items-center space-x-1">
+                            <button type="button" onclick="shiftMonth(-1)" class="p-1 rounded-md text-gray-400 hover:text-[#528a7a] hover:bg-[#eef5f2] transition" title="上個月">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            </button>
+                            <input type="month" id="monthPicker" class="text-sm border theme-input-border rounded-lg px-2 py-1 outline-none theme-ring theme-input-bg text-gray-700 font-medium">
+                            <button type="button" onclick="shiftMonth(1)" class="p-1 rounded-md text-gray-400 hover:text-[#528a7a] hover:bg-[#eef5f2] transition" title="下個月">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
+                            <div class="w-px h-4 bg-gray-300 mx-1"></div>
+                            <button type="button" id="lockDateBtn" class="lock-btn flex items-center justify-center p-1.5 rounded-lg border border-transparent text-gray-400 hover:bg-gray-100" title="鎖定目前月份">
                                 <svg class="w-4 h-4 lock-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
                             </button>
                         </div>
@@ -157,7 +170,7 @@
                         </div>
                         <div id="dateContainer" class="grid grid-cols-7 gap-1.5 text-sm"></div>
                         <div class="mt-2 text-right">
-                            <button type="button" onclick="clearSelectedDates()" class="text-xs text-gray-400 hover:text-gray-600 underline">清空日期</button>
+                            <button type="button" onclick="clearSelectedDates()" class="text-xs text-gray-400 hover:text-gray-600 underline">清空勾選日期</button>
                         </div>
                     </div>
                 </div>
@@ -166,7 +179,13 @@
             <!-- ================= 右欄：班別、類別與時數 ================= -->
             <div class="space-y-7 flex flex-col">
                 <div>
-                    <label class="block text-sm font-medium theme-text-sub mb-2">班別 <span class="text-[#c95d5d]">*</span></label>
+                    <!-- ★ 修改點 4：增加班別的鎖定功能 -->
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-medium theme-text-sub">班別 <span class="text-[#c95d5d]">*</span></label>
+                        <button type="button" id="lockShiftBtn" class="lock-btn flex items-center justify-center p-1.5 rounded-lg border border-transparent text-gray-400 hover:bg-gray-100" title="鎖定此欄位">
+                            <svg class="w-4 h-4 lock-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+                        </button>
+                    </div>
                     <div class="grid grid-cols-4 gap-2.5">
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="AM" checked class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">AM</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="PM" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">PM</div></label>
@@ -249,7 +268,7 @@
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         時數格式錯誤！請輸入 0.5 的倍數。
                     </p>
-                    <p id="autoHoursHint" class="hidden text-[#528a7a] text-xs mt-2 font-medium">✓ 已依班別自動帶入建議時數，如有需要可手動微調。</p>
+                    <p id="autoHoursHint" class="hidden text-[#528a7a] text-xs mt-2 font-medium">✓ 已依班別自動帶入建議時數，如有需要可手手動微調。</p>
                 </div>
             </div>
 
@@ -437,7 +456,7 @@
             }
         }
 
-        // ================= 日期網格生成邏輯 =================
+        // ================= 日期網格與月份切換 =================
         const monthPicker = document.getElementById('monthPicker');
         const dateContainer = document.getElementById('dateContainer');
 
@@ -447,6 +466,17 @@
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             monthPicker.value = `${yyyy}-${mm}`;
             renderCalendar(yyyy, mm);
+        }
+
+        // ★ 新增月份快切邏輯
+        function shiftMonth(delta) {
+            if (!monthPicker.value) return;
+            const [y, m] = monthPicker.value.split('-');
+            const date = new Date(y, parseInt(m) - 1 + delta, 1);
+            const newY = date.getFullYear();
+            const newM = String(date.getMonth() + 1).padStart(2, '0');
+            monthPicker.value = `${newY}-${newM}`;
+            monthPicker.dispatchEvent(new Event('change')); // 觸發重繪
         }
 
         monthPicker.addEventListener('change', (e) => {
@@ -652,6 +682,14 @@
             document.getElementById('kpiForm').reset();
             document.getElementById('hours').value = '4';
             isHoursValid = true;
+            
+            // 預設選項還原
+            const defaultShift = document.querySelector('input[name="workShift"][value="AM"]');
+            if (defaultShift) {
+                defaultShift.checked = true;
+                defaultShift.dispatchEvent(new Event('change'));
+            }
+
             const defaultCatRadio = document.querySelector('input[name="category"][value="第二人力 (20點/時)"]');
             if (defaultCatRadio) {
                 defaultCatRadio.checked = true;
@@ -706,7 +744,15 @@
             }
 
             let matchFound = false;
-            for (const [id, name] of Object.entries(employeeData)) {
+            // ★ 修改：從物件結構 .name 中比對搜尋
+            for (const [id, empObj] of Object.entries(employeeData)) {
+                let name = "";
+                if(typeof empObj === 'object' && empObj !== null) {
+                    name = empObj.name;
+                } else {
+                    name = empObj; // 兼容防呆
+                }
+
                 if (name.includes(query) || id.includes(query.toUpperCase())) {
                     matchFound = true;
                     const li = document.createElement('li');
@@ -893,19 +939,24 @@
         }
         document.querySelectorAll('input[name="taskSource"]').forEach(radio => radio.addEventListener('change', checkNotesRequired));
 
+        // ★ 表單重置與鎖定邏輯 (核心修復)
         function resetFormWithLocks() {
             const isNameLocked = document.getElementById('lockNameBtn').classList.contains('is-locked');
             const isDateLocked = document.getElementById('lockDateBtn').classList.contains('is-locked');
+            const isShiftLocked = document.getElementById('lockShiftBtn').classList.contains('is-locked');
             const isCategoryLocked = document.getElementById('lockCategoryBtn').classList.contains('is-locked');
 
             const savedEmpSearch = empSearchInput.value;
             const savedEmpId = empIdInput.value;
+            const savedMonth = monthPicker.value; // ★ 暫存月份
+            const savedShift = getSelectedShift();
             const savedCategory = getSelectedCategory();
 
             document.getElementById('kpiForm').reset();
             document.getElementById('hours').value = '4'; 
             isHoursValid = true;
 
+            // 1. 還原姓名
             if (isNameLocked && savedEmpId) {
                 empSearchInput.value = savedEmpSearch;
                 empIdInput.value = savedEmpId;
@@ -914,14 +965,32 @@
                 resetEmpState();
             }
 
-            if (isDateLocked) {
-                const [year, month] = monthPicker.value.split('-');
-                renderCalendar(year, month);
+            // 2. 還原日期 (★ 修復：永遠清除選定天數，但保留月份)
+            clearSelectedDates(); 
+            if (isDateLocked && savedMonth) {
+                monthPicker.value = savedMonth; // 填回月份
+                const [year, month] = savedMonth.split('-');
+                renderCalendar(year, month);    // 重新畫出該月的空白日曆
             } else {
-                clearSelectedDates();
-                initDateGrid(); 
+                initDateGrid(); // 回歸目前的真實月份
             }
 
+            // 3. 還原班別
+            if (isShiftLocked && savedShift) {
+                const shiftRadio = document.querySelector(`input[name="workShift"][value="${savedShift}"]`);
+                if (shiftRadio) {
+                    shiftRadio.checked = true;
+                    shiftRadio.dispatchEvent(new Event('change'));
+                }
+            } else {
+                const defaultShift = document.querySelector('input[name="workShift"][value="AM"]');
+                if (defaultShift) {
+                    defaultShift.checked = true;
+                    defaultShift.dispatchEvent(new Event('change'));
+                }
+            }
+
+            // 4. 還原工作類別
             if (isCategoryLocked && savedCategory) {
                 const catRadio = document.querySelector(`input[name="category"][value="${savedCategory}"]`);
                 if (catRadio) {
@@ -1026,7 +1095,6 @@
                 }
 
                 if (errorCount === 0) {
-                    // ★ 跳出 Modal 而不是 Toast
                     const successModal = document.getElementById('successModal');
                     const modalTitle = document.getElementById('modalTitle');
                     const modalDesc = document.getElementById('modalDesc');
