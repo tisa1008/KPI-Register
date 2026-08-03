@@ -25,32 +25,29 @@
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         
-        /* 查詢視窗 Tab 切換樣式 */
         .tab-btn { border-bottom-width: 2px; border-color: transparent; color: #a0aec0; transition: all 0.2s; }
         .tab-btn.active { border-color: #528a7a; color: #528a7a; font-weight: bold; }
+        
+        /* 載入中/鎖定的防呆樣式 */
+        input[type="date"]:disabled { background-color: #f8faf9; color: #a0aec0; cursor: not-allowed; }
     </style>
 </head>
 <body class="theme-bg p-4 md:p-8 min-h-screen text-[#4a5568]">
 
     <div class="max-w-4xl mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-10 flex flex-col relative">
         
-        <!-- ★ 修改點 3：新增微小的版本序號 -->
+        <!-- ★ 版本序號更新 -->
         <div class="absolute top-4 right-6 text-[11px] text-gray-400 font-mono tracking-wider">
-            202608020009版
+            202608030006版
         </div>
 
-        <!-- 標題列 -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 border-b border-gray-100 pb-4 gap-3 mt-4 sm:mt-0">
             <h2 class="text-2xl font-bold theme-text-main tracking-wide">放射師 KPI 申報表</h2>
-            
             <div class="flex items-center gap-3">
-                <!-- ★ 修改點 1：特權員編專用的主管版入口 (預設隱藏) -->
                 <a href="https://femhmedimage-kpi-admin.netlify.app" id="adminLinkBtn" class="hidden flex items-center justify-center text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap shadow-sm border border-indigo-100">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     切換至主管版
                 </a>
-
-                <!-- 開啟雙軌查詢視窗按鈕 -->
                 <button type="button" onclick="openQueryModal()" class="flex items-center justify-center text-sm bg-[#eef5f2] hover:bg-[#dfeee8] text-[#528a7a] font-medium px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap shadow-sm">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path></svg>
                     申報紀錄查詢 / 留存
@@ -58,12 +55,17 @@
             </div>
         </div>
 
+        <!-- ★ 靜態與動態雙層公告區塊 -->
         <div class="mb-8 p-4 bg-[#f8faf9] rounded-xl border border-[#eef2f0] text-sm text-[#5c7a6f] flex items-start shadow-sm">
             <svg class="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <p class="leading-relaxed">新 KPI 人力申報表預計 2026.08 正式啟用，每月 2 日結束後統計上月份紀錄，請記得登記。如有修改紀錄之需求請聯繫行政組長。</p>
+            <div class="leading-relaxed w-full">
+                <!-- 常態公告 (永遠秒開顯示) -->
+                <p class="font-medium text-[#2d4a41] mb-1">【常態公告】請確實申報，每月申報截止日為隔月 3 日，請記得於期限內完成登記。</p>
+                <!-- 動態新公告 (從後端抓取後會顯示在這裡，醒目顏色) -->
+                <p id="dynamicAnnouncement" class="text-orange-600 font-bold hidden mt-2"></p>
+            </div>
         </div>
 
-        <!-- 申報表單 -->
         <form id="kpiForm" class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6 flex-grow">
             <!-- 左欄：基本資料 -->
             <div class="space-y-6">
@@ -79,9 +81,8 @@
                 <div>
                     <label class="block text-sm font-medium theme-text-sub mb-1.5">日期 <span class="text-[#c95d5d]">*</span></label>
                     <div class="flex items-center gap-2">
-                        <!-- ★ 修改點 2：移除預設日期，保留空白，新增「帶入當日」按鈕 -->
                         <input type="date" id="workDate" name="workDate" required class="w-full flex-grow border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
-                        <button type="button" onclick="setTodayDate()" class="flex-shrink-0 bg-white border border-[#dce5e2] text-[#528a7a] hover:bg-[#eef5f2] font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm whitespace-nowrap active:scale-95">
+                        <button type="button" id="btnToday" onclick="setTodayDate()" class="flex-shrink-0 bg-white border border-[#dce5e2] text-[#528a7a] hover:bg-[#eef5f2] font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm whitespace-nowrap active:scale-95">
                             當日
                         </button>
                     </div>
@@ -204,21 +205,21 @@
         </div>
     </div>
 
-    <!-- 重複確認視窗 -->
+    <!-- 重複/截止 攔截視窗 -->
     <div id="duplicateModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-[60] px-4 transition-opacity">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all text-center">
             <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-[#fef3c7] mb-5">
                 <svg class="h-7 w-7 text-[#d97706]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             </div>
-            <h3 class="text-xl font-bold text-[#d97706] mb-3">發現重複資料</h3>
-            <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+            <h3 class="text-xl font-bold text-[#d97706] mb-3">請確認資料狀態</h3>
+            <p id="duplicateMessageText" class="text-sm text-gray-600 mb-6 leading-relaxed">
                 系統發現您在<strong class="text-gray-800">該日</strong>已經有<strong class="text-gray-800">相同班別與類別</strong>的申報。<br><br>若這是不同時段的支援，請點擊「強制送出」；若為選錯日期，請點擊「返回修改」。
             </p>
             <div class="flex flex-col space-y-3">
                 <button type="button" onclick="closeDuplicateModal()" class="w-full bg-white border-2 border-gray-300 text-gray-600 font-medium py-3 rounded-xl hover:bg-gray-50 transition duration-200">
                     返回修改 (取消送出)
                 </button>
-                <button type="button" onclick="executeForceSubmit()" class="w-full bg-[#d97706] text-white font-medium py-3 rounded-xl hover:bg-[#b45309] transition duration-200 shadow-sm flex justify-center items-center">
+                <button type="button" id="forceSubmitBtn" onclick="executeForceSubmit()" class="w-full bg-[#d97706] text-white font-medium py-3 rounded-xl hover:bg-[#b45309] transition duration-200 shadow-sm flex justify-center items-center">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     確認無誤，強制送出
                 </button>
@@ -234,13 +235,11 @@
                 <button type="button" onclick="closeQueryModal()" class="text-gray-400 hover:text-gray-600 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
             
-            <!-- 分頁按鈕 -->
             <div class="flex border-b border-gray-200 mb-6">
                 <button type="button" id="tabInstant" onclick="switchQueryTab('instant')" class="tab-btn active w-1/2 pb-3 text-center text-sm font-medium">及時查詢 (開新網頁)</button>
-                <button type="button" id="tabEmail" onclick="switchQueryTab('email')" class="tab-btn w-1/2 pb-3 text-center text-sm font-medium">E-MAIL 留存</button>
+                <button type="button" id="tabEmail" onclick="switchQueryTab('email')" class="tab-btn w-1/2 pb-3 text-center text-sm font-medium">E-MAIL 留存 (月底備查)</button>
             </div>
 
-            <!-- 共用查詢輸入區 -->
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium theme-text-sub mb-1.5">員工編號</label>
@@ -253,12 +252,11 @@
                 </div>
             </div>
 
-            <!-- 分頁 1：及時查詢 (開新網頁) -->
+            <!-- 分頁 1：及時查詢 -->
             <div id="contentInstant" class="flex flex-col">
                 <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4">
                     <label class="block text-sm font-medium text-blue-800 mb-2">安全驗證密碼 <span class="text-xs text-blue-600 font-normal">(到職日月 4 碼，如 1月1日請輸入 0101)</span></label>
                     <input type="text" inputmode="numeric" pattern="[0-9]*" id="queryPassword" maxlength="4" placeholder="MMDD" class="w-full border border-blue-200 rounded-xl px-4 py-2 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-colors text-center tracking-widest text-lg mb-3 font-mono">
-                    
                     <label class="flex items-start cursor-pointer group">
                         <input type="checkbox" id="queryConfirmCheck" class="mt-1 w-4 h-4 text-[#528a7a] rounded border-gray-300 focus:ring-[#528a7a]">
                         <span class="ml-2 text-sm text-blue-800 group-hover:text-blue-900 transition-colors leading-relaxed">
@@ -266,14 +264,13 @@
                         </span>
                     </label>
                 </div>
-
                 <button type="button" id="btnInstantQuery" onclick="executeInstantQuery()" class="w-full bg-[#528a7a] text-white px-4 py-3 rounded-xl hover:bg-[#437365] transition duration-200 font-bold shadow-sm flex justify-center items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                     開新視窗查看紀錄
                 </button>
             </div>
 
-            <!-- 分頁 2：EMAIL 留存專屬內容 -->
+            <!-- 分頁 2：EMAIL 留存 -->
             <div id="contentEmail" class="hidden">
                 <div class="bg-[#f8faf9] border border-[#eef2f0] rounded-xl p-4 mb-6 text-sm text-[#5c7a6f] leading-relaxed">
                     此功能將直接彙整您指定月份的紀錄，並寄送至您的專屬醫院信箱 (femh<span class="font-bold">員編</span>@femh.org.tw)。<br><br>
@@ -287,27 +284,73 @@
     </div>
 
     <script>
-        // ★ KPI 後端 API
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyp0IMenC2GrKBoJN3Qvi826RkoupdPyOmuX1lLMrCVmccclAD8lOfCVAVQmjT5U0Grrg/exec';
-        // ★ 員工主檔 API
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqWVDO_hbrReP2e9Bvli6HU_6NJwZU9fU4SpS73owB5fMUN-f9EKSWxyEDVQSkpxRoTg/exec';
         const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbwJoKEynFyNUCYCM8BPRvFBrG87ASNciYH6UGB01KVS_3zK5ZTL1z_lzwPaslfxmZdF/exec';
 
-        // 初始化設定 (僅設定查詢月份預設值，申報日期留空)
+        // =========================================================================
+        // ★ 前端月曆動態鎖定演算法 (0秒瞬間執行，不需等待後端)
+        // =========================================================================
+        function setDateRestrictions() {
+            const dateInput = document.getElementById('workDate');
+            const t = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Taipei"}));
+            const todayY = t.getFullYear();
+            const todayM = t.getMonth(); 
+            const todayD = t.getDate();
+            
+            const maxMStr = String(todayM + 1).padStart(2, '0');
+            const maxDStr = String(todayD).padStart(2, '0');
+            dateInput.max = `${todayY}-${maxMStr}-${maxDStr}`;
+
+            // =========================================================================
+            // 🛠️ 【組長手動修改區】 申報截止日設定
+            // 若遇連續假期需要延後申報，請將下方的 3 改成你要的日期 (例如 5)。
+            // 修改後存檔，重新部署 Netlify 即可生效！
+            // =========================================================================
+            const DEADLINE_DAY = 3; 
+            // =========================================================================
+
+            let minDate;
+            if (todayD > DEADLINE_DAY) {
+                minDate = new Date(todayY, todayM, 1);
+            } else {
+                minDate = new Date(todayY, todayM - 1, 1);
+            }
+            
+            const minYStr = minDate.getFullYear();
+            const minMStr = String(minDate.getMonth() + 1).padStart(2, '0');
+            dateInput.min = `${minYStr}-${minMStr}-01`;
+        }
+
+        async function loadConfig() {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'get_config' })
+                });
+                const result = await response.json();
+                
+                if (result.success && result.announcement && result.announcement !== "目前無最新公告") {
+                    const dynAnn = document.getElementById('dynamicAnnouncement');
+                    dynAnn.innerHTML = "【最新發布】" + result.announcement;
+                    dynAnn.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.warn('動態新公告載入失敗，僅顯示常態公告', error);
+            }
+        }
+
         function initDefaultMonth() {
             const t = new Date(), y = t.getFullYear(), m = String(t.getMonth() + 1).padStart(2, '0');
             document.getElementById('queryMonth').value = `${y}-${m}`;
         }
         
-        // ★ 修改點 2：取得台灣當日時間並填入
         function setTodayDate() {
             const t = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Taipei"}));
-            const y = t.getFullYear();
-            const m = String(t.getMonth() + 1).padStart(2, '0');
-            const d = String(t.getDate()).padStart(2, '0');
+            const y = t.getFullYear(), m = String(t.getMonth() + 1).padStart(2, '0'), d = String(t.getDate()).padStart(2, '0');
             document.getElementById('workDate').value = `${y}-${m}-${d}`;
             
-            // 點擊後按鈕產生視覺回饋
-            const btn = document.querySelector('button[onclick="setTodayDate()"]');
+            const btn = document.getElementById('btnToday');
             btn.classList.add('bg-[#eef5f2]', 'border-[#528a7a]');
             setTimeout(() => btn.classList.remove('bg-[#eef5f2]', 'border-[#528a7a]'), 300);
         }
@@ -327,7 +370,11 @@
             } catch (error) { console.error('員工資料載入失敗：', error); }
         }
 
-        document.addEventListener('DOMContentLoaded', async () => { initDefaultMonth(); await loadEmployeeData(); });
+        document.addEventListener('DOMContentLoaded', async () => { 
+            initDefaultMonth(); 
+            setDateRestrictions(); 
+            await Promise.all([loadEmployeeData(), loadConfig()]); 
+        });
 
         const categoryDescriptions = {
             "臨床教學-在職人員 (5點/時)": "臨床教學(在職訓練、PGY、代訓...)，請註記訓練機房。", "臨床教學-實習生 (2.5點/時)": "臨床教學(實習生)時填報，請註記訓練機房。",
@@ -346,13 +393,7 @@
 
         empIdInput.addEventListener('input', function() {
             let id = this.value.trim().toUpperCase(); this.value = id; 
-            
-            // ★ 修改點 1：特權員編專用入口判斷
-            if (id === '91439') {
-                adminLinkBtn.classList.remove('hidden');
-            } else {
-                adminLinkBtn.classList.add('hidden');
-            }
+            if (id === '91439') adminLinkBtn.classList.remove('hidden'); else adminLinkBtn.classList.add('hidden');
             
             if (id === '') { nameDisplayBox.classList.add('hidden'); empError.classList.add('hidden'); isEmpValid = false; return; }
             if (employeeData[id]) { 
@@ -421,7 +462,6 @@
         
         function resetFormToDefault(keepEmpId = false) {
             const currentEmpId = empIdInput.value; document.getElementById('kpiForm').reset(); 
-            // 申報日期留空，僅預設查詢月份
             initDefaultMonth(); 
             document.getElementById('hours').value = '4'; 
             hideAllSections(); document.getElementById('categoryDescBox').classList.add('hidden'); checkNotesRequired();
@@ -435,11 +475,8 @@
             e.preventDefault();
             if (!isEmployeeDataLoaded) return alert('員工資料尚未載入完成，請稍候。');
             if (!isEmpValid) { empIdInput.focus(); empError.classList.remove('hidden'); return; }
-            
-            // 雙重驗證：確保日期真的有填 (防呆)
             const formData = new FormData(this);
             if (!formData.get('workDate')) { alert('請點擊「當日」按鈕或手動選擇申報日期！'); return; }
-            
             if (parseFloat(hoursInput.value) <= 0 || isNaN(parseFloat(hoursInput.value))) { hoursInput.focus(); return; }
             if (!getSelectedShift()) return alert('請選擇申報班別！');
 
@@ -460,9 +497,18 @@
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 const data = await response.json();
-                if (data.success) { document.getElementById('duplicateModal').classList.add('hidden'); document.getElementById('successModal').classList.remove('hidden'); } 
-                else if (data.requireConfirmation) { document.getElementById('duplicateModal').classList.remove('hidden'); } 
-                else { throw new Error(data.message || "未知錯誤"); }
+                
+                if (data.success) { 
+                    document.getElementById('duplicateModal').classList.add('hidden'); document.getElementById('successModal').classList.remove('hidden'); 
+                } else if (data.requireConfirmation) { 
+                    document.getElementById('duplicateMessageText').innerHTML = data.message + "<br><br>若這是不同時段的支援，請點擊「強制送出」；若為選錯日期，請點擊「返回修改」。";
+                    document.getElementById('forceSubmitBtn').classList.remove('hidden');
+                    document.getElementById('duplicateModal').classList.remove('hidden'); 
+                } else {
+                    document.getElementById('duplicateMessageText').innerHTML = data.message;
+                    document.getElementById('forceSubmitBtn').classList.add('hidden'); 
+                    document.getElementById('duplicateModal').classList.remove('hidden'); 
+                }
             } catch (error) { alert('伺服器無回應，請重新整理確認。'); } 
             finally { submitBtn.disabled = false; submitBtn.innerText = '送出申報'; submitBtn.classList.replace('bg-[#b8c9c3]', 'theme-primary'); }
         }
@@ -507,7 +553,7 @@
             if (!employeeData[empId]) return alert('員編錯誤，請重新確認！');
             if (!month) return alert('請選擇查詢月份！');
             if (pwd.length !== 4) return alert('請輸入 4 碼到職日月做為驗證密碼！');
-            if (!isChecked) return alert('請勾選本人聲明切結方可查詢！');
+            if (!isChecked) return alert('請勾選本人聲明方可查詢！');
 
             const btn = document.getElementById('btnInstantQuery');
             const originalText = btn.innerText;
