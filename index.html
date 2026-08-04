@@ -38,7 +38,7 @@
         
         <!-- ★ 版本序號更新 -->
         <div class="absolute top-4 right-6 text-[11px] text-gray-400 font-mono tracking-wider">
-            202608030006版
+            202608030007版
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 border-b border-gray-100 pb-4 gap-3 mt-4 sm:mt-0">
@@ -59,9 +59,7 @@
         <div class="mb-8 p-4 bg-[#f8faf9] rounded-xl border border-[#eef2f0] text-sm text-[#5c7a6f] flex items-start shadow-sm">
             <svg class="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <div class="leading-relaxed w-full">
-                <!-- 常態公告 (永遠秒開顯示) -->
                 <p class="font-medium text-[#2d4a41] mb-1">【常態公告】請確實申報，每月申報截止日為隔月 3 日，請記得於期限內完成登記。</p>
-                <!-- 動態新公告 (從後端抓取後會顯示在這裡，醒目顏色) -->
                 <p id="dynamicAnnouncement" class="text-orange-600 font-bold hidden mt-2"></p>
             </div>
         </div>
@@ -229,17 +227,16 @@
 
     <!-- 雙軌查詢視窗 -->
     <div id="queryModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity py-10">
+        <!-- 省略查詢視窗內部內容，與上一版相同 -->
         <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl transform transition-all flex flex-col">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-xl font-bold theme-text-main">申報紀錄查詢與留存</h3>
                 <button type="button" onclick="closeQueryModal()" class="text-gray-400 hover:text-gray-600 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
-            
             <div class="flex border-b border-gray-200 mb-6">
                 <button type="button" id="tabInstant" onclick="switchQueryTab('instant')" class="tab-btn active w-1/2 pb-3 text-center text-sm font-medium">及時查詢 (開新網頁)</button>
                 <button type="button" id="tabEmail" onclick="switchQueryTab('email')" class="tab-btn w-1/2 pb-3 text-center text-sm font-medium">E-MAIL 留存 (月底備查)</button>
             </div>
-
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium theme-text-sub mb-1.5">員工編號</label>
@@ -251,8 +248,6 @@
                     <input type="month" id="queryMonth" required class="w-full border theme-input-border rounded-xl px-4 py-2 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
                 </div>
             </div>
-
-            <!-- 分頁 1：及時查詢 -->
             <div id="contentInstant" class="flex flex-col">
                 <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4">
                     <label class="block text-sm font-medium text-blue-800 mb-2">安全驗證密碼 <span class="text-xs text-blue-600 font-normal">(到職日月 4 碼，如 1月1日請輸入 0101)</span></label>
@@ -269,8 +264,6 @@
                     開新視窗查看紀錄
                 </button>
             </div>
-
-            <!-- 分頁 2：EMAIL 留存 -->
             <div id="contentEmail" class="hidden">
                 <div class="bg-[#f8faf9] border border-[#eef2f0] rounded-xl p-4 mb-6 text-sm text-[#5c7a6f] leading-relaxed">
                     此功能將直接彙整您指定月份的紀錄，並寄送至您的專屬醫院信箱 (femh<span class="font-bold">員編</span>@femh.org.tw)。<br><br>
@@ -288,7 +281,7 @@
         const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbwJoKEynFyNUCYCM8BPRvFBrG87ASNciYH6UGB01KVS_3zK5ZTL1z_lzwPaslfxmZdF/exec';
 
         // =========================================================================
-        // ★ 前端月曆動態鎖定演算法 (0秒瞬間執行，不需等待後端)
+        // ★ 前端月曆動態鎖定演算法
         // =========================================================================
         function setDateRestrictions() {
             const dateInput = document.getElementById('workDate');
@@ -301,13 +294,7 @@
             const maxDStr = String(todayD).padStart(2, '0');
             dateInput.max = `${todayY}-${maxMStr}-${maxDStr}`;
 
-            // =========================================================================
-            // 🛠️ 【組長手動修改區】 申報截止日設定
-            // 若遇連續假期需要延後申報，請將下方的 3 改成你要的日期 (例如 5)。
-            // 修改後存檔，重新部署 Netlify 即可生效！
-            // =========================================================================
             const DEADLINE_DAY = 3; 
-            // =========================================================================
 
             let minDate;
             if (todayD > DEADLINE_DAY) {
@@ -376,6 +363,27 @@
             await Promise.all([loadEmployeeData(), loadConfig()]); 
         });
 
+        // =========================================================================
+        // ★ 新增功能：選擇班別觸發預熱 (Pre-warming)
+        // 目的：同仁只要選擇班別，系統就默默去叫醒 GAS 伺服器
+        // =========================================================================
+        let hasWokenUp = false;
+        document.querySelectorAll('input[name="workShift"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                calculateSecondManpowerHours(); // 原有邏輯
+                
+                // 只喚醒一次，避免狂點浪費資源
+                if (!hasWokenUp) {
+                    hasWokenUp = true;
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'wakeup' })
+                    }).catch(e => console.warn('喚醒失敗，這不影響後續操作'));
+                }
+            });
+        });
+
         const categoryDescriptions = {
             "臨床教學-在職人員 (5點/時)": "臨床教學(在職訓練、PGY、代訓...)，請註記訓練機房。", "臨床教學-實習生 (2.5點/時)": "臨床教學(實習生)時填報，請註記訓練機房。",
             "臨床受訓 (15點/時)": "臨床受訓人員點值補充(在職訓練、PGY)。", "第二人力 (20點/時)": "雙人作業機房（ASRCT、MR1、病房）點值補充，「獨立作業時間」請勿申報。",
@@ -429,7 +437,6 @@
             else { document.getElementById('autoHoursHint').classList.add('hidden'); }
             hoursInput.value = autoHours; hoursInput.dispatchEvent(new Event('input'));
         }
-        document.querySelectorAll('input[name="workShift"]').forEach(radio => radio.addEventListener('change', calculateSecondManpowerHours));
         secondManpowerRadios.forEach(radio => radio.addEventListener('change', calculateSecondManpowerHours));
 
         function hideAllSections() {
@@ -469,7 +476,7 @@
             else { nameDisplayBox.classList.add('hidden'); isEmpValid = false; adminLinkBtn.classList.add('hidden'); }
         }
 
-        // ================= ★ 申報資料送出邏輯 =================
+        // ================= ★ 申報資料送出邏輯 (加入超時改判) =================
         let pendingSubmitData = null; 
         document.getElementById('kpiForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -493,24 +500,82 @@
         });
 
         async function sendDataToBackend(payload) {
-            const submitBtn = document.getElementById('submitBtn'); submitBtn.disabled = true; submitBtn.innerText = '資料傳送中...'; submitBtn.classList.replace('theme-primary', 'bg-[#b8c9c3]');
+            const submitBtn = document.getElementById('submitBtn'); 
+            submitBtn.disabled = true; 
+            submitBtn.innerText = '資料傳送中...'; 
+            submitBtn.classList.replace('theme-primary', 'bg-[#b8c9c3]');
+
+            // 前端自製複合鍵條碼，準備給「隱形查詢」使用
+            const d = payload.data;
+            const compositeKey = `${String(d.empId).trim()}_${String(d.workDate).trim()}_${String(d.workShift).trim()}_${String(d.category).trim()}`;
+
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-                const data = await response.json();
+                // 1. 本來要送出的請求
+                const fetchPromise = fetch(GOOGLE_SCRIPT_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify(payload) 
+                }).then(res => res.json());
+
+                // 2. 建立一個 3 秒超時地雷 (Timeout Race)
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 3000));
+
+                // ★ 開始賽跑！如果 3 秒內成功，就會直接走到下一行
+                const data = await Promise.race([fetchPromise, timeoutPromise]);
                 
-                if (data.success) { 
-                    document.getElementById('duplicateModal').classList.add('hidden'); document.getElementById('successModal').classList.remove('hidden'); 
-                } else if (data.requireConfirmation) { 
-                    document.getElementById('duplicateMessageText').innerHTML = data.message + "<br><br>若這是不同時段的支援，請點擊「強制送出」；若為選錯日期，請點擊「返回修改」。";
-                    document.getElementById('forceSubmitBtn').classList.remove('hidden');
-                    document.getElementById('duplicateModal').classList.remove('hidden'); 
+                handleBackendResponse(data);
+
+            } catch (error) { 
+                // ★ 如果等了 3 秒爆掉了，就會跳進這個冷啟動保護機制
+                if (error.message === 'TIMEOUT') {
+                    submitBtn.innerText = '系統正在確認資料狀態...';
+                    
+                    // 多給 GAS 伺服器 3 秒鐘去把剛剛卡住的資料寫完
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+
+                    try {
+                        // 背景的幽靈重試 (Silent Retry)
+                        const checkRes = await fetch(GOOGLE_SCRIPT_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'check_status', compositeKey: compositeKey })
+                        }).then(res => res.json());
+
+                        if (checkRes.success && checkRes.exists) {
+                            // 情況 A：找到了！偷偷變臉顯示成功
+                            document.getElementById('duplicateModal').classList.add('hidden'); 
+                            document.getElementById('successModal').classList.remove('hidden'); 
+                        } else {
+                            // 情況 B：沒找到，才通知失敗
+                            alert('⚠️ 網路不穩導致送出失敗，請再按一次送出。');
+                        }
+                    } catch (checkErr) {
+                        alert('⚠️ 網路不穩導致送出失敗，請再按一次送出。');
+                    }
                 } else {
-                    document.getElementById('duplicateMessageText').innerHTML = data.message;
-                    document.getElementById('forceSubmitBtn').classList.add('hidden'); 
-                    document.getElementById('duplicateModal').classList.remove('hidden'); 
+                    alert('伺服器無回應，請重新整理確認。'); 
                 }
-            } catch (error) { alert('伺服器無回應，請重新整理確認。'); } 
-            finally { submitBtn.disabled = false; submitBtn.innerText = '送出申報'; submitBtn.classList.replace('bg-[#b8c9c3]', 'theme-primary'); }
+            } finally { 
+                submitBtn.disabled = false; 
+                submitBtn.innerText = '送出申報'; 
+                submitBtn.classList.replace('bg-[#b8c9c3]', 'theme-primary'); 
+            }
+        }
+
+        // 把原本的判斷抽出來成獨立函數，方便程式碼乾淨
+        function handleBackendResponse(data) {
+            if (data.success) { 
+                document.getElementById('duplicateModal').classList.add('hidden'); 
+                document.getElementById('successModal').classList.remove('hidden'); 
+            } else if (data.requireConfirmation) { 
+                document.getElementById('duplicateMessageText').innerHTML = data.message + "<br><br>若這是不同時段的支援，請點擊「強制送出」；若為選錯日期，請點擊「返回修改」。";
+                document.getElementById('forceSubmitBtn').classList.remove('hidden');
+                document.getElementById('duplicateModal').classList.remove('hidden'); 
+            } else {
+                document.getElementById('duplicateMessageText').innerHTML = data.message;
+                document.getElementById('forceSubmitBtn').classList.add('hidden'); 
+                document.getElementById('duplicateModal').classList.remove('hidden'); 
+            }
         }
 
         function closeDuplicateModal() { document.getElementById('duplicateModal').classList.add('hidden'); pendingSubmitData = null; }
