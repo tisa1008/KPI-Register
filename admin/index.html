@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
+<!DOCTYPE html><html lang="zh-TW"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>放射師 KPI 申報表 - 主管批次版</title>
@@ -49,8 +47,7 @@
             <p class="text-sm text-gray-500 mb-8">請輸入管理員密碼以解鎖批次作業權限</p>
             
             <form id="loginForm" onsubmit="verifyLogin(event)">
-                <input type="password" id="adminPasswordInput" required placeholder="請輸入密碼" 
-                       class="w-full border theme-input-border rounded-xl px-4 py-3 outline-none theme-ring bg-gray-50 text-center text-lg tracking-widest mb-6">
+                <input type="password" id="adminPasswordInput" required="" placeholder="請輸入密碼" class="w-full border theme-input-border rounded-xl px-4 py-3 outline-none theme-ring bg-gray-50 text-center text-lg tracking-widest mb-6">
                 <button type="submit" id="loginBtn" class="w-full theme-primary text-white font-bold py-3.5 rounded-xl theme-primary-hover transition duration-300 shadow-md">
                     驗證並進入系統
                 </button>
@@ -65,9 +62,8 @@
     <!-- 主頁面容器 (登入前預設模糊隱藏) -->
     <div id="mainContent" class="max-w-5xl mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-8 lg:p-10 flex flex-col blur-sm opacity-50 pointer-events-none transition-all duration-500 relative">
         
-        <!-- ★ 修改點 5：新增版本序號 -->
         <div class="absolute top-4 right-6 text-[11px] text-gray-400 font-mono tracking-wider">
-            202608030001版
+            20260805003版
         </div>
 
         <!-- 標題列與頂部操作區 -->
@@ -95,21 +91,18 @@
                 </div>
 
                 <!-- 返回同仁版按鈕 -->
-                <a href="https://femhmedimage-kpi-register.netlify.app" 
-                   class="flex items-center text-sm bg-white border border-[#d3e3dc] hover:bg-gray-50 text-gray-600 font-medium px-4 py-2 rounded-xl transition-colors whitespace-nowrap shadow-sm">
+                <a href="https://femhmedimage-kpi-register.netlify.app" class="flex items-center text-sm bg-white border border-[#d3e3dc] hover:bg-gray-50 text-gray-600 font-medium px-4 py-2 rounded-xl transition-colors whitespace-nowrap shadow-sm">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     回同仁版
                 </a>
 
                 <!-- 匯出結算 CSV 按鈕 -->
-                <button type="button" onclick="openExportModal()" 
-                   class="flex items-center text-sm bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 font-medium px-3 py-2 rounded-xl transition-colors whitespace-nowrap shadow-sm">
+                <button type="button" onclick="openExportModal()" class="flex items-center text-sm bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 font-medium px-3 py-2 rounded-xl transition-colors whitespace-nowrap shadow-sm">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     匯出結算
                 </button>
 
-                <a href="https://docs.google.com/spreadsheets/d/1zovYPNEcsDwoHik_wMdAnaQzWXdcieJY2QsmAtDBlT4/edit?usp=sharing" target="_blank" 
-                   class="flex items-center text-sm bg-white border border-[#d3e3dc] hover:bg-gray-50 text-gray-600 font-medium px-3 py-2 rounded-xl transition-colors whitespace-nowrap shadow-sm">
+                <a href="https://docs.google.com/spreadsheets/d/1zovYPNEcsDwoHik_wMdAnaQzWXdcieJY2QsmAtDBlT4/edit?usp=sharing" target="_blank" class="flex items-center text-sm bg-white border border-[#d3e3dc] hover:bg-gray-50 text-gray-600 font-medium px-3 py-2 rounded-xl transition-colors whitespace-nowrap shadow-sm">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                     總表
                 </a>
@@ -131,8 +124,7 @@
                             <svg class="w-4 h-4 lock-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
                         </button>
                     </div>
-                    <input type="text" id="empSearch" required placeholder="請輸入姓名關鍵字 (如: 吳騏宇)" autocomplete="off"
-                           class="w-full border theme-input-border rounded-xl px-4 py-3 outline-none theme-ring theme-input-bg transition-colors relative z-10">
+                    <input type="text" id="empSearch" required="" placeholder="請輸入姓名關鍵字 (如: 吳騏宇)" autocomplete="off" class="w-full border theme-input-border rounded-xl px-4 py-3 outline-none theme-ring theme-input-bg transition-colors relative z-10">
                     <input type="hidden" id="empId" name="empId">
                     <ul id="empDropdown" class="hidden absolute z-20 w-full mt-1 bg-white border border-[#dce5e2] rounded-xl shadow-lg max-h-48 overflow-y-auto"></ul>
                     <div id="nameDisplayBox" class="hidden mt-2 p-3 bg-[#eef5f2] theme-text-main rounded-xl border border-[#d3e3dc] flex items-center">
@@ -149,7 +141,6 @@
                 <div>
                     <div class="flex items-center justify-between mb-2">
                         <label class="block text-sm font-medium theme-text-sub">申報日期 <span class="text-xs font-normal text-gray-400 ml-1">(可點擊多天)</span> <span class="text-[#c95d5d]">*</span></label>
-                        <!-- ★ 修改點 3：增加上下切換按鈕 -->
                         <div class="flex items-center space-x-1">
                             <button type="button" onclick="shiftMonth(-1)" class="p-1 rounded-md text-gray-400 hover:text-[#528a7a] hover:bg-[#eef5f2] transition" title="上個月">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
@@ -179,7 +170,6 @@
             <!-- ================= 右欄：班別、類別與時數 ================= -->
             <div class="space-y-7 flex flex-col">
                 <div>
-                    <!-- ★ 修改點 4：增加班別的鎖定功能 -->
                     <div class="flex items-center justify-between mb-2">
                         <label class="block text-sm font-medium theme-text-sub">班別 <span class="text-[#c95d5d]">*</span></label>
                         <button type="button" id="lockShiftBtn" class="lock-btn flex items-center justify-center p-1.5 rounded-lg border border-transparent text-gray-400 hover:bg-gray-100" title="鎖定此欄位">
@@ -187,14 +177,18 @@
                         </button>
                     </div>
                     <div class="grid grid-cols-4 gap-2.5">
-                        <label class="cursor-pointer"><input type="radio" name="workShift" value="AM" checked class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">AM</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="AM" checked="" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">AM</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="PM" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">PM</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="17-21" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">17-21</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="8-21" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">8-21</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="workShift" value="B.D" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">B、D班</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="B" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">B</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="G" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">G</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="10-12" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">10-12</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="10-17" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">10-17</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="D" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">D</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="E" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">E</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="9-18" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">9-18</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="16-17" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">16-17</div></label>
                     </div>
                 </div>
 
@@ -206,7 +200,7 @@
                         </button>
                     </div>
                     <div class="grid grid-cols-4 gap-2.5">
-                        <label class="cursor-pointer"><input type="radio" name="category" value="第二人力 (20點/時)" class="peer sr-only" required checked><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">第二</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="category" value="第二人力 (20點/時)" class="peer sr-only" required="" checked=""><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">第二</div></label>
                         <label class="cursor-pointer"><input type="radio" name="category" value="支援 (20點/時)" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">支</div></label>
                         <label class="cursor-pointer"><input type="radio" name="category" value="行政公務 (20點/時)" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">公</div></label>
                         <label class="cursor-pointer"><input type="radio" name="category" value="教學公務 (20點/時)" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">教</div></label>
@@ -258,17 +252,17 @@
                 </div>
 
                 <div class="mt-auto pt-2">
-                    <label class="block text-sm font-medium theme-text-sub mb-2">申報時數 (每日產生時數，以 0.5 為單位) <span class="text-[#c95d5d]">*</span></label>
+                    <label class="block text-sm font-medium theme-text-sub mb-2">申報時數 (每日產生時數，以 0.5 為單位，上限 12 小時) <span class="text-[#c95d5d]">*</span></label>
                     <div class="flex items-center gap-3">
                         <button type="button" id="hoursMinusBtn" class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl border theme-input-border bg-white text-[#528a7a] text-2xl font-bold hover:bg-[#eef5f2] active:scale-95 transition-all shadow-sm">−</button>
-                        <input type="number" id="hours" name="hours" step="0.5" min="0.5" required placeholder="例如: 4.0" value="4" class="w-full text-center border theme-input-border rounded-xl px-4 py-3 outline-none theme-ring theme-input-bg transition-colors text-gray-700 text-lg font-medium shadow-sm">
+                        <input type="number" id="hours" name="hours" step="0.5" min="0.5" max="12" required="" placeholder="例如: 4.0" value="4" class="w-full text-center border theme-input-border rounded-xl px-4 py-3 outline-none theme-ring theme-input-bg transition-colors text-gray-700 text-lg font-medium shadow-sm">
                         <button type="button" id="hoursPlusBtn" class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl border theme-input-border bg-white text-[#528a7a] text-2xl font-bold hover:bg-[#eef5f2] active:scale-95 transition-all shadow-sm">+</button>
                     </div>
                     <p id="hoursError" class="text-[#c95d5d] text-sm mt-2 hidden font-medium flex items-center">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        時數格式錯誤！請輸入 0.5 的倍數。
+                        時數格式錯誤！請輸入 0.5 的倍數，且不可超過 12 小時。
                     </p>
-                    <p id="autoHoursHint" class="hidden text-[#528a7a] text-xs mt-2 font-medium">✓ 已依班別自動帶入建議時數，如有需要可手手動微調。</p>
+                    <p id="autoHoursHint" class="hidden text-[#528a7a] text-xs mt-2 font-medium">✓ 已依申報條件自動帶入建議時數，如有需要可手動微調。</p>
                 </div>
             </div>
 
@@ -276,7 +270,7 @@
             <div class="lg:col-span-2 border-t border-gray-100 pt-6 mt-2">
                 <div class="mb-6">
                     <label class="block text-sm font-medium theme-text-sub mb-2">
-                        其他備註 <span class="text-gray-400 text-xs ml-1 font-normal">(選填)</span>
+                        其他備註 <span id="notesOptionalText" class="text-gray-400 text-xs ml-1 font-normal">(選填)</span>
                         <span id="notesRequiredStar" class="text-[#c95d5d] hidden">*</span>
                     </label>
                     <textarea id="notes" name="notes" rows="2" class="w-full border theme-input-border rounded-xl px-4 py-3 outline-none theme-ring theme-input-bg transition-colors resize-none shadow-sm" placeholder="若有其他說明請填寫於此...送出時將自動標註「行政組長代填」"></textarea>
@@ -316,7 +310,7 @@
             <div id="exportInputSection" class="mb-6">
                 <p class="text-sm text-gray-500 mb-4">請選擇要結算的月份，系統將自動計算點數並供您預覽。</p>
                 <label class="block text-sm font-medium theme-text-sub mb-1.5">結算月份</label>
-                <input type="month" id="exportMonth" required class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
+                <input type="month" id="exportMonth" required="" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700">
             </div>
 
             <!-- 預覽清單區塊 -->
@@ -372,8 +366,11 @@
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCjvKU1DBoU0R-Dn-Ty3yHHihXo9h4BOJg97VZz88xU3GhoeFC6-gVmC_Gexz8h0Ct8Q/exec';
+        // ⚠️ 請務必確認：這兩個網址是否與同仁版連接的是「同一個」後端專案！
+        // 若否，前面討論過的所有後端修改（排隊鎖、時數驗證、員工名冊暫存）都不會套用在主管版上。
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw9b4zjW7o2AEA_URJaqbAS_hkzUei5UMNLVyEq0gReVTwM7YKPpJos7KG7j5xky21taQ/exec';
         const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbxN266G9nOteMtxxHnhhhlodNF1eYEgNS0_9PTj4QziSzOM3RvjiiM3DfMYn0RtUndf/exec';
+        const MAX_HOURS_PER_SUBMIT = 12; // ★ 與同仁版、後端保持一致的單筆時數上限
 
         // ★★★ 確保只宣告一次全域變數 ★★★
         let adminToken = sessionStorage.getItem('kpiAdminToken') || '';
@@ -381,6 +378,35 @@
         let isEmployeeDataLoaded = false;
         let selectedDatesArray = [];
         let currentExportData = []; 
+
+        // =========================================================================
+        // ★ 新增：網路請求「自動重試」安全網（與同仁版邏輯一致）
+        // =========================================================================
+        async function fetchWithAutoRetry(url, options, config = {}) {
+            const maxRetries = config.maxRetries ?? 1;
+            const retryDelayMs = config.retryDelayMs ?? 800;
+            const onRetry = config.onRetry;
+
+            let lastError;
+            for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        throw new Error('伺服器回應狀態碼異常: ' + response.status);
+                    }
+                    return response;
+                } catch (err) {
+                    lastError = err;
+                    if (attempt < maxRetries) {
+                        console.warn(`第 ${attempt + 1} 次連線失敗，將自動重試...`, err);
+                        if (typeof onRetry === 'function') onRetry(attempt + 1);
+                        await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+                        continue;
+                    }
+                }
+            }
+            throw lastError;
+        }
 
         // ================= 登入驗證機制 =================
         document.addEventListener('DOMContentLoaded', async () => {
@@ -401,7 +427,7 @@
             errorMsg.classList.add('hidden');
 
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                const response = await fetchWithAutoRetry(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'verify_admin', password: pwd })
@@ -445,7 +471,7 @@
         // ================= API 與資料載入 =================
         async function loadEmployeeData() {
             try {
-                const response = await fetch(`${EMPLOYEE_API_URL}?action=getEmployees`);
+                const response = await fetchWithAutoRetry(`${EMPLOYEE_API_URL}?action=getEmployees`, {});
                 const result = await response.json();
                 if (result.success) {
                     employeeData = result.data;
@@ -468,7 +494,6 @@
             renderCalendar(yyyy, mm);
         }
 
-        // ★ 新增月份快切邏輯
         function shiftMonth(delta) {
             if (!monthPicker.value) return;
             const [y, m] = monthPicker.value.split('-');
@@ -476,7 +501,7 @@
             const newY = date.getFullYear();
             const newM = String(date.getMonth() + 1).padStart(2, '0');
             monthPicker.value = `${newY}-${newM}`;
-            monthPicker.dispatchEvent(new Event('change')); // 觸發重繪
+            monthPicker.dispatchEvent(new Event('change'));
         }
 
         monthPicker.addEventListener('change', (e) => {
@@ -558,7 +583,7 @@
             btn.innerText = '資料結算中...';
 
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                const response = await fetchWithAutoRetry(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ 
@@ -683,7 +708,6 @@
             document.getElementById('hours').value = '4';
             isHoursValid = true;
             
-            // 預設選項還原
             const defaultShift = document.querySelector('input[name="workShift"][value="AM"]');
             if (defaultShift) {
                 defaultShift.checked = true;
@@ -719,10 +743,17 @@
         }
 
         // ================= 其他表單連動邏輯 =================
+        // ★「第二人力」專用：依「班別＋支援機房」自動帶入時數
         const hoursAutoRules = {
             "病房": { "AM": 2, "PM": 2 },
-            "ASRCT": { "AM": 3, "PM": 4, "B.D": 7, "10-12": 1, "10-17": 5 },
-            "MR1": { "AM": 2, "PM": 1.5, "B.D": 3.5, "17-21": 2, "8-21": 5.5, "G": 3.5 }
+            "ASRCT": { "AM": 3, "PM": 4, "B": 7, "D": 7, "10-12": 1, "10-17": 5 },
+            "MR1": { "AM": 2, "PM": 1.5, "B": 3.5, "17-21": 2, "8-21": 5.5, "G": 3.5 }
+        };
+
+        // ★ 新增：「第二人力」以外的所有工作類別，依「班別」自動帶入時數
+        const generalShiftHoursMap = {
+            "AM": 4, "PM": 4, "17-21": 4, "8-21": 4, "B": 8, "D": 8, "G": 4,
+            "10-12": 2, "10-17": 6, "E": 8, "9-18": 7, "16-17": 1
         };
 
         const empSearchInput = document.getElementById('empSearch');
@@ -744,13 +775,12 @@
             }
 
             let matchFound = false;
-            // ★ 修改：從物件結構 .name 中比對搜尋
             for (const [id, empObj] of Object.entries(employeeData)) {
                 let name = "";
                 if(typeof empObj === 'object' && empObj !== null) {
                     name = empObj.name;
                 } else {
-                    name = empObj; // 兼容防呆
+                    name = empObj;
                 }
 
                 if (name.includes(query) || id.includes(query.toUpperCase())) {
@@ -801,6 +831,7 @@
             isEmpValid = false;
         }
 
+        // ★ 更新：時數即時檢查加入「上限 12 小時」的判斷
         const hoursInput = document.getElementById('hours');
         const hoursError = document.getElementById('hoursError');
         const autoHoursHint = document.getElementById('autoHoursHint');
@@ -808,7 +839,7 @@
 
         hoursInput.addEventListener('input', function() {
             const val = parseFloat(this.value);
-            if (this.value !== '' && (isNaN(val) || val % 0.5 !== 0 || val <= 0)) {
+            if (this.value !== '' && (isNaN(val) || val % 0.5 !== 0 || val <= 0 || val > MAX_HOURS_PER_SUBMIT)) {
                 hoursError.classList.remove('hidden');
                 isHoursValid = false;
             } else {
@@ -825,6 +856,7 @@
             if (isNaN(val)) val = 0;
             val = Math.round((val + delta) * 10) / 10;
             if (val < 0.5) val = 0.5;
+            if (val > MAX_HOURS_PER_SUBMIT) val = MAX_HOURS_PER_SUBMIT; // ★ 新增：上限保護
             hoursInput.value = val;
             hoursInput.dispatchEvent(new Event('input'));
         }
@@ -846,6 +878,7 @@
         document.getElementById('trainingArea').addEventListener('input', enforceUppercase);
         document.getElementById('supportArea').addEventListener('input', enforceUppercase);
 
+        // ★「第二人力」專用時數計算（原有邏輯，維持不變，僅更新提示文字）
         function calculateSecondManpowerHours() {
             if (getSelectedCategory() !== '第二人力 (20點/時)') return;
             const shift = getSelectedShift();
@@ -855,6 +888,7 @@
             let autoHours = 4;
             if (area && hoursAutoRules[area] && hoursAutoRules[area][shift] !== undefined) {
                 autoHours = hoursAutoRules[area][shift];
+                autoHoursHint.textContent = '✓ 已依「班別＋支援機房」自動帶入建議時數，如有需要可手動微調。';
                 autoHoursHint.classList.remove('hidden');
             } else {
                 autoHoursHint.classList.add('hidden');
@@ -863,8 +897,30 @@
             hoursInput.dispatchEvent(new Event('input'));
         }
 
+        // ★ 新增：「第二人力」以外的所有類別，依申報班別自動帶入時數
+        function applyGeneralShiftHours() {
+            const shift = getSelectedShift();
+            if (shift && generalShiftHoursMap[shift] !== undefined) {
+                hoursInput.value = generalShiftHoursMap[shift];
+                hoursInput.dispatchEvent(new Event('input'));
+                autoHoursHint.textContent = '✓ 已依「班別」自動帶入建議時數，如有需要可手動微調。';
+                autoHoursHint.classList.remove('hidden');
+            } else {
+                autoHoursHint.classList.add('hidden');
+            }
+        }
+
+        // ★ 新增：統一調度 — 依目前的工作類別，決定要用哪一套時數計算邏輯
+        function handleShiftChange() {
+            if (getSelectedCategory() === '第二人力 (20點/時)') {
+                calculateSecondManpowerHours();
+            } else {
+                applyGeneralShiftHours();
+            }
+        }
+
         document.querySelectorAll('input[name="workShift"]').forEach(radio => {
-            radio.addEventListener('change', calculateSecondManpowerHours);
+            radio.addEventListener('change', handleShiftChange);
         });
         secondManpowerRadios.forEach(radio => {
             radio.addEventListener('change', calculateSecondManpowerHours);
@@ -911,6 +967,12 @@
                     sections.mobile.classList.remove('hidden');
                     sections.mobile.querySelectorAll('input[type="radio"]').forEach(r => r.required = true);
                 }
+
+                // ★ 新增：非「第二人力」類別，依目前已選擇的班別重新自動帶入時數
+                if (val !== '第二人力 (20點/時)') {
+                    applyGeneralShiftHours();
+                }
+
                 checkNotesRequired();
             });
         });
@@ -948,7 +1010,7 @@
 
             const savedEmpSearch = empSearchInput.value;
             const savedEmpId = empIdInput.value;
-            const savedMonth = monthPicker.value; // ★ 暫存月份
+            const savedMonth = monthPicker.value;
             const savedShift = getSelectedShift();
             const savedCategory = getSelectedCategory();
 
@@ -956,7 +1018,6 @@
             document.getElementById('hours').value = '4'; 
             isHoursValid = true;
 
-            // 1. 還原姓名
             if (isNameLocked && savedEmpId) {
                 empSearchInput.value = savedEmpSearch;
                 empIdInput.value = savedEmpId;
@@ -965,17 +1026,15 @@
                 resetEmpState();
             }
 
-            // 2. 還原日期 (★ 修復：永遠清除選定天數，但保留月份)
             clearSelectedDates(); 
             if (isDateLocked && savedMonth) {
-                monthPicker.value = savedMonth; // 填回月份
+                monthPicker.value = savedMonth;
                 const [year, month] = savedMonth.split('-');
-                renderCalendar(year, month);    // 重新畫出該月的空白日曆
+                renderCalendar(year, month);
             } else {
-                initDateGrid(); // 回歸目前的真實月份
+                initDateGrid();
             }
 
-            // 3. 還原班別
             if (isShiftLocked && savedShift) {
                 const shiftRadio = document.querySelector(`input[name="workShift"][value="${savedShift}"]`);
                 if (shiftRadio) {
@@ -990,7 +1049,6 @@
                 }
             }
 
-            // 4. 還原工作類別
             if (isCategoryLocked && savedCategory) {
                 const catRadio = document.querySelector(`input[name="category"][value="${savedCategory}"]`);
                 if (catRadio) {
@@ -1019,10 +1077,11 @@
             if (selectedDatesArray.length === 0) {
                 return showToast('請在面板上至少勾選一天！', 'error');
             }
+            // ★ 更新：時數驗證加入上限判斷
             if (!isHoursValid || hoursInput.value === '') {
                 hoursInput.focus();
                 document.getElementById('hoursError').classList.remove('hidden');
-                return;
+                return showToast('申報時數格式有誤，請確認為 0.5 倍數且不超過 12 小時！', 'error');
             }
 
             const submitBtns = document.querySelectorAll('.submit-action-btn');
@@ -1050,12 +1109,13 @@
             let successCount = 0;
             let errorCount = 0;
             let warningCount = 0; 
+            let lastErrorMessage = '';
 
             try {
                 for (const targetDate of selectedDatesArray) {
                     const payload = {
                         action: 'submit',
-                        password: adminToken, // ★ 攜帶後端鑰匙
+                        password: adminToken,
                         data: {
                             workDate: targetDate, 
                             workShift: getSelectedShift(), 
@@ -1071,26 +1131,39 @@
                         }
                     };
 
-                    const response = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    const text = await response.text();
-                    let data;
                     try {
-                        data = JSON.parse(text);
-                    } catch (err) {
-                        data = { success: true, hasWarning: false }; 
-                    }
+                        // ★ 每一筆批次送出，都套用自動重試機制，降低尖峰時段整批中斷的風險
+                        const response = await fetchWithAutoRetry(GOOGLE_SCRIPT_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify(payload)
+                        }, {
+                            maxRetries: 1,
+                            onRetry: () => {
+                                submitBtns.forEach(btn => { btn.innerText = `連線忙線中，重試 ${targetDate}...`; });
+                            }
+                        });
+                        
+                        const text = await response.text();
+                        let data;
+                        try {
+                            data = JSON.parse(text);
+                        } catch (err) {
+                            data = { success: true, hasWarning: false }; 
+                        }
 
-                    if (data.success || data.result === "success") {
-                        successCount++;
-                        if (data.hasWarning) warningCount++; 
-                    } else {
+                        if (data.success || data.result === "success") {
+                            successCount++;
+                            if (data.hasWarning || (data.message && data.message.includes('重複'))) warningCount++; 
+                        } else {
+                            errorCount++;
+                            lastErrorMessage = data.message || '未知錯誤';
+                            console.error(`${targetDate} 寫入失敗:`, data.message);
+                        }
+                    } catch (singleError) {
                         errorCount++;
-                        console.error(`${targetDate} 寫入失敗:`, data.message);
+                        lastErrorMessage = '網路連線異常';
+                        console.error(`${targetDate} 網路異常（已重試過仍失敗）:`, singleError);
                     }
                 }
 
@@ -1118,9 +1191,9 @@
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     resetFormWithLocks();
                 } else if (successCount > 0) {
-                    showToast(`部分成功！${successCount} 筆成功，${errorCount} 筆失敗，請檢查網路。`, 'error');
+                    showToast(`部分成功！${successCount} 筆成功，${errorCount} 筆失敗（原因：${lastErrorMessage}）`, 'error');
                 } else {
-                    showToast('全部寫入失敗，請確認密碼或網路連線。', 'error');
+                    showToast(`全部寫入失敗（原因：${lastErrorMessage}），請確認密碼或網路連線。`, 'error');
                 }
 
             } catch (error) {
@@ -1140,5 +1213,6 @@
             }
         });
     </script>
-</body>
-</html>
+
+
+</body></html>
