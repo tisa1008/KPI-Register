@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>放射師 KPI 申報表</title>
-    <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
@@ -28,22 +27,29 @@
         .tab-btn { border-bottom-width: 2px; border-color: transparent; color: #a0aec0; transition: all 0.2s; }
         .tab-btn.active { border-color: #528a7a; color: #528a7a; font-weight: bold; }
         
-        /* 載入中/鎖定的防呆樣式 */
         input[type="date"]:disabled { background-color: #f8faf9; color: #a0aec0; cursor: not-allowed; }
+
+        /* ★ 新增：送出中的載入動畫 */
+        .spin-icon { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        button:disabled { opacity: 0.7; cursor: not-allowed; }
     </style>
 </head>
 <body class="theme-bg p-4 md:p-8 min-h-screen text-[#4a5568]">
 
     <div class="max-w-4xl mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-10 flex flex-col relative">
         
-        <!-- ★ 版本序號更新 -->
         <div class="absolute top-4 right-6 text-[11px] text-gray-400 font-mono tracking-wider">
-            202608030007版
+            20260805003版
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 border-b border-gray-100 pb-4 gap-3 mt-4 sm:mt-0">
             <h2 class="text-2xl font-bold theme-text-main tracking-wide">放射師 KPI 申報表</h2>
             <div class="flex items-center gap-3">
+                <button type="button" id="refreshCacheBtn" onclick="refreshEmployeeCache()" class="hidden flex items-center justify-center text-sm bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap shadow-sm border border-amber-100">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    清除名冊暫存
+                </button>
                 <a href="https://femhmedimage-kpi-admin.netlify.app" id="adminLinkBtn" class="hidden flex items-center justify-center text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap shadow-sm border border-indigo-100">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     切換至主管版
@@ -55,7 +61,6 @@
             </div>
         </div>
 
-        <!-- ★ 靜態與動態雙層公告區塊 -->
         <div class="mb-8 p-4 bg-[#f8faf9] rounded-xl border border-[#eef2f0] text-sm text-[#5c7a6f] flex items-start shadow-sm">
             <svg class="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5 text-[#528a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <div class="leading-relaxed w-full">
@@ -92,10 +97,14 @@
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="PM" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">PM</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="17-21" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">17-21</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="8-21" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">8-21</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="workShift" value="B.D" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">B、D班</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="B" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">B</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="G" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">G</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="10-12" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">10-12</div></label>
                         <label class="cursor-pointer"><input type="radio" name="workShift" value="10-17" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">10-17</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="D" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">D</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="E" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">E</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="9-18" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">9-18</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="workShift" value="16-17" class="peer sr-only"><div class="text-center border theme-input-border rounded-xl px-1 py-2.5 text-sm font-medium theme-text-sub bg-white peer-checked:bg-[#528a7a] peer-checked:text-white transition-colors shadow-sm">16-17</div></label>
                     </div>
                 </div>
             </div>
@@ -159,14 +168,14 @@
                 </div>
 
                 <div class="mt-auto pt-2">
-                    <label class="block text-sm font-medium theme-text-sub mb-1.5">申報時數 (請以 0.5 為單位) <span class="text-[#c95d5d]">*</span></label>
+                    <label class="block text-sm font-medium theme-text-sub mb-1.5">申報時數 (請以 0.5 為單位，上限 12 小時) <span class="text-[#c95d5d]">*</span></label>
                     <div class="flex items-center gap-2">
                         <button type="button" id="hoursMinusBtn" class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border theme-input-border bg-white text-[#528a7a] text-xl font-bold hover:bg-[#eef5f2] active:scale-95 transition-all shadow-sm">−</button>
-                        <input type="number" id="hours" name="hours" step="0.5" min="0.5" required placeholder="例如: 0.5, 1.0" value="4" class="w-full text-center border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700 shadow-sm">
+                        <input type="number" id="hours" name="hours" step="0.5" min="0.5" max="12" required placeholder="例如: 0.5, 1.0" value="4" class="w-full text-center border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring theme-input-bg transition-colors text-gray-700 shadow-sm">
                         <button type="button" id="hoursPlusBtn" class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border theme-input-border bg-white text-[#528a7a] text-xl font-bold hover:bg-[#eef5f2] active:scale-95 transition-all shadow-sm">+</button>
                     </div>
-                    <p id="hoursError" class="text-[#c95d5d] text-sm mt-2 hidden font-medium flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>時數格式錯誤！請輸入 0.5 的倍數。</p>
-                    <p id="autoHoursHint" class="hidden text-[#528a7a] text-xs mt-2 font-medium">✓ 已依「班別＋支援機房」自動帶入建議時數，如有需要仍可手動調整。</p>
+                    <p id="hoursError" class="text-[#c95d5d] text-sm mt-2 hidden font-medium flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>時數格式錯誤！請輸入 0.5 的倍數，且不可超過 12 小時。</p>
+                    <p id="autoHoursHint" class="hidden text-[#528a7a] text-xs mt-2 font-medium">✓ 已依「申報時段」自動帶入建議時數，如有需要仍可手動調整。</p>
                 </div>
             </div>
 
@@ -203,31 +212,8 @@
         </div>
     </div>
 
-    <!-- 重複/截止 攔截視窗 -->
-    <div id="duplicateModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-[60] px-4 transition-opacity">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all text-center">
-            <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-[#fef3c7] mb-5">
-                <svg class="h-7 w-7 text-[#d97706]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            </div>
-            <h3 class="text-xl font-bold text-[#d97706] mb-3">請確認資料狀態</h3>
-            <p id="duplicateMessageText" class="text-sm text-gray-600 mb-6 leading-relaxed">
-                系統發現您在<strong class="text-gray-800">該日</strong>已經有<strong class="text-gray-800">相同班別與類別</strong>的申報。<br><br>若這是不同時段的支援，請點擊「強制送出」；若為選錯日期，請點擊「返回修改」。
-            </p>
-            <div class="flex flex-col space-y-3">
-                <button type="button" onclick="closeDuplicateModal()" class="w-full bg-white border-2 border-gray-300 text-gray-600 font-medium py-3 rounded-xl hover:bg-gray-50 transition duration-200">
-                    返回修改 (取消送出)
-                </button>
-                <button type="button" id="forceSubmitBtn" onclick="executeForceSubmit()" class="w-full bg-[#d97706] text-white font-medium py-3 rounded-xl hover:bg-[#b45309] transition duration-200 shadow-sm flex justify-center items-center">
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    確認無誤，強制送出
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- 雙軌查詢視窗 -->
     <div id="queryModal" class="fixed inset-0 bg-[#1a2b25] bg-opacity-40 backdrop-blur-sm hidden flex items-center justify-center z-50 px-4 transition-opacity py-10">
-        <!-- 省略查詢視窗內部內容，與上一版相同 -->
         <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl transform transition-all flex flex-col">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-xl font-bold theme-text-main">申報紀錄查詢與留存</h3>
@@ -277,8 +263,38 @@
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqWVDO_hbrReP2e9Bvli6HU_6NJwZU9fU4SpS73owB5fMUN-f9EKSWxyEDVQSkpxRoTg/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw9b4zjW7o2AEA_URJaqbAS_hkzUei5UMNLVyEq0gReVTwM7YKPpJos7KG7j5xky21taQ/exec';
         const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbwJoKEynFyNUCYCM8BPRvFBrG87ASNciYH6UGB01KVS_3zK5ZTL1z_lzwPaslfxmZdF/exec';
+        const MAX_HOURS_PER_SUBMIT = 12; // ★ 與後端保持一致的單筆時數上限
+
+        // =========================================================================
+        // ★ 網路請求「自動重試」安全網
+        // =========================================================================
+        async function fetchWithAutoRetry(url, options, config = {}) {
+            const maxRetries = config.maxRetries ?? 1;
+            const retryDelayMs = config.retryDelayMs ?? 800;
+            const onRetry = config.onRetry;
+
+            let lastError;
+            for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        throw new Error('伺服器回應狀態碼異常: ' + response.status);
+                    }
+                    return response;
+                } catch (err) {
+                    lastError = err;
+                    if (attempt < maxRetries) {
+                        console.warn(`第 ${attempt + 1} 次連線失敗，將自動重試...`, err);
+                        if (typeof onRetry === 'function') onRetry(attempt + 1);
+                        await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+                        continue;
+                    }
+                }
+            }
+            throw lastError;
+        }
 
         // =========================================================================
         // ★ 前端月曆動態鎖定演算法
@@ -295,13 +311,7 @@
             dateInput.max = `${todayY}-${maxMStr}-${maxDStr}`;
 
             const DEADLINE_DAY = 3; 
-
-            let minDate;
-            if (todayD > DEADLINE_DAY) {
-                minDate = new Date(todayY, todayM, 1);
-            } else {
-                minDate = new Date(todayY, todayM - 1, 1);
-            }
+            let minDate = (todayD > DEADLINE_DAY) ? new Date(todayY, todayM, 1) : new Date(todayY, todayM - 1, 1);
             
             const minYStr = minDate.getFullYear();
             const minMStr = String(minDate.getMonth() + 1).padStart(2, '0');
@@ -310,7 +320,7 @@
 
         async function loadConfig() {
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                const response = await fetchWithAutoRetry(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'get_config' })
@@ -347,7 +357,7 @@
 
         async function loadEmployeeData() {
             try {
-                const response = await fetch(`${EMPLOYEE_API_URL}?action=getEmployees`);
+                const response = await fetchWithAutoRetry(`${EMPLOYEE_API_URL}?action=getEmployees`, {});
                 const result = await response.json();
                 if (result.success) {
                     employeeData = result.data;
@@ -363,45 +373,41 @@
             await Promise.all([loadEmployeeData(), loadConfig()]); 
         });
 
-        // =========================================================================
-        // ★ 新增功能：選擇班別觸發預熱 (Pre-warming)
-        // 目的：同仁只要選擇班別，系統就默默去叫醒 GAS 伺服器
-        // =========================================================================
-        let hasWokenUp = false;
-        document.querySelectorAll('input[name="workShift"]').forEach(radio => {
-            radio.addEventListener('change', () => {
-                calculateSecondManpowerHours(); // 原有邏輯
-                
-                // 只喚醒一次，避免狂點浪費資源
-                if (!hasWokenUp) {
-                    hasWokenUp = true;
-                    fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'wakeup' })
-                    }).catch(e => console.warn('喚醒失敗，這不影響後續操作'));
-                }
-            });
-        });
-
         const categoryDescriptions = {
             "臨床教學-在職人員 (5點/時)": "臨床教學(在職訓練、PGY、代訓...)，請註記訓練機房。", "臨床教學-實習生 (2.5點/時)": "臨床教學(實習生)時填報，請註記訓練機房。",
             "臨床受訓 (15點/時)": "臨床受訓人員點值補充(在職訓練、PGY)。", "第二人力 (20點/時)": "雙人作業機房（ASRCT、MR1、病房）點值補充，「獨立作業時間」請勿申報。",
             "支援 (20點/時)": "支援非雙人作業機房點值補充。", "行政公務 (20點/時)": "行政公務點值補充；可選擇【自行申請】。",
             "教學公務 (20點/時)": "教學公務點值補充；可選擇【自行申請】。", "急診機動 (20點/時)": "急診區4人以上作業時填報點值補充。"
         };
-        const hoursAutoRules = { "病房": { "AM": 2, "PM": 2 }, "ASRCT": { "AM": 3, "PM": 4, "B.D": 7, "10-12": 1, "10-17": 5 }, "MR1": { "AM": 2, "PM": 1.5, "B.D": 3.5, "17-21": 2, "8-21": 5.5, "G": 3.5 } };
+
+        const hoursAutoRules = { 
+            "病房": { "AM": 2, "PM": 2 }, 
+            "ASRCT": { "AM": 3, "PM": 4, "B": 7, "D": 7, "10-12": 1, "10-17": 5 }, 
+            "MR1": { "AM": 2, "PM": 1.5, "B": 3.5, "17-21": 2, "8-21": 5.5, "G": 3.5 } 
+        };
+
+        const generalShiftHoursMap = {
+            "AM": 4, "PM": 4, "17-21": 4, "8-21": 4, "B": 8, "D": 8, "G": 4,
+            "10-12": 2, "10-17": 6, "E": 8, "9-18": 7, "16-17": 1
+        };
 
         const empIdInput = document.getElementById('empId');
         const nameDisplayBox = document.getElementById('nameDisplayBox');
         const empNameSpan = document.getElementById('empName');
         const empError = document.getElementById('empError');
         const adminLinkBtn = document.getElementById('adminLinkBtn');
+        const refreshCacheBtn = document.getElementById('refreshCacheBtn');
         let isEmpValid = false;
 
         empIdInput.addEventListener('input', function() {
             let id = this.value.trim().toUpperCase(); this.value = id; 
-            if (id === '91439') adminLinkBtn.classList.remove('hidden'); else adminLinkBtn.classList.add('hidden');
+            if (id === '91439') { 
+                adminLinkBtn.classList.remove('hidden'); 
+                refreshCacheBtn.classList.remove('hidden'); 
+            } else { 
+                adminLinkBtn.classList.add('hidden'); 
+                refreshCacheBtn.classList.add('hidden'); 
+            }
             
             if (id === '') { nameDisplayBox.classList.add('hidden'); empError.classList.add('hidden'); isEmpValid = false; return; }
             if (employeeData[id]) { 
@@ -412,14 +418,53 @@
             }
         });
 
+        async function refreshEmployeeCache() {
+            const pwd = prompt('請輸入主管密碼以執行「清除員工名冊暫存」：');
+            if (!pwd) return;
+
+            const btn = refreshCacheBtn;
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '處理中...';
+
+            try {
+                const response = await fetchWithAutoRetry(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'refresh_employee_cache', password: pwd })
+                });
+                const result = await response.json();
+                alert(result.message);
+            } catch (error) {
+                alert('網路連線異常，請稍後再試一次。');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
+        // ★ 更新：時數即時檢查加入「上限 12 小時」的判斷
         const hoursInput = document.getElementById('hours');
         hoursInput.addEventListener('input', function() {
             const val = parseFloat(this.value);
-            if (this.value !== '' && (isNaN(val) || val % 0.5 !== 0 || val <= 0)) document.getElementById('hoursError').classList.remove('hidden'); else document.getElementById('hoursError').classList.add('hidden');
+            const errorEl = document.getElementById('hoursError');
+            if (this.value !== '' && (isNaN(val) || val % 0.5 !== 0 || val <= 0 || val > MAX_HOURS_PER_SUBMIT)) {
+                errorEl.classList.remove('hidden');
+            } else {
+                errorEl.classList.add('hidden');
+            }
         });
         document.getElementById('hoursMinusBtn').addEventListener('click', () => adjustHours(-0.5));
         document.getElementById('hoursPlusBtn').addEventListener('click', () => adjustHours(0.5));
-        function adjustHours(delta) { let val = parseFloat(hoursInput.value); if (isNaN(val)) val = 0; val = Math.round((val + delta) * 10) / 10; if (val < 0.5) val = 0.5; hoursInput.value = val; hoursInput.dispatchEvent(new Event('input')); }
+        function adjustHours(delta) { 
+            let val = parseFloat(hoursInput.value); 
+            if (isNaN(val)) val = 0; 
+            val = Math.round((val + delta) * 10) / 10; 
+            if (val < 0.5) val = 0.5; 
+            if (val > MAX_HOURS_PER_SUBMIT) val = MAX_HOURS_PER_SUBMIT; // ★ 新增：上限保護
+            hoursInput.value = val; 
+            hoursInput.dispatchEvent(new Event('input')); 
+        }
         function getSelectedShift() { return document.querySelector('input[name="workShift"]:checked')?.value || ''; }
         
         const categorySelect = document.getElementById('category');
@@ -433,10 +478,39 @@
             if (categorySelect.value !== '第二人力 (20點/時)') return;
             const shift = getSelectedShift(), checkedRadio = document.querySelector('input[name="secondManpowerArea"]:checked'), area = checkedRadio ? checkedRadio.value : '';
             let autoHours = 4;
-            if (area && hoursAutoRules[area] && hoursAutoRules[area][shift] !== undefined) { autoHours = hoursAutoRules[area][shift]; document.getElementById('autoHoursHint').classList.remove('hidden'); } 
-            else { document.getElementById('autoHoursHint').classList.add('hidden'); }
+            const hintEl = document.getElementById('autoHoursHint');
+            if (area && hoursAutoRules[area] && hoursAutoRules[area][shift] !== undefined) { 
+                autoHours = hoursAutoRules[area][shift]; 
+                hintEl.textContent = '✓ 已依「班別＋支援機房」自動帶入建議時數，如有需要仍可手動調整。';
+                hintEl.classList.remove('hidden'); 
+            } else { 
+                hintEl.classList.add('hidden'); 
+            }
             hoursInput.value = autoHours; hoursInput.dispatchEvent(new Event('input'));
         }
+
+        function applyGeneralShiftHours() {
+            const shift = getSelectedShift();
+            const hintEl = document.getElementById('autoHoursHint');
+            if (shift && generalShiftHoursMap[shift] !== undefined) {
+                hoursInput.value = generalShiftHoursMap[shift];
+                hoursInput.dispatchEvent(new Event('input'));
+                hintEl.textContent = '✓ 已依「申報時段」自動帶入建議時數，如有需要仍可手動調整。';
+                hintEl.classList.remove('hidden');
+            } else {
+                hintEl.classList.add('hidden');
+            }
+        }
+
+        function handleShiftChange() {
+            if (categorySelect.value === '第二人力 (20點/時)') {
+                calculateSecondManpowerHours();
+            } else {
+                applyGeneralShiftHours();
+            }
+        }
+
+        document.querySelectorAll('input[name="workShift"]').forEach(radio => radio.addEventListener('change', handleShiftChange));
         secondManpowerRadios.forEach(radio => radio.addEventListener('change', calculateSecondManpowerHours));
 
         function hideAllSections() {
@@ -454,6 +528,11 @@
             else if (val === '支援 (20點/時)') { sections.support.classList.remove('hidden'); secondManpowerBlock.classList.add('hidden'); supportTextBlock.classList.remove('hidden'); supportAreaInput.required = true; } 
             else if (val.includes('公務')) { sections.official.classList.remove('hidden'); sections.official.querySelectorAll('input[type="radio"]').forEach(r => r.required = true); const supervisorAssignedRadio = sections.official.querySelector('input[value="主管指派"]'); if (supervisorAssignedRadio) supervisorAssignedRadio.checked = true; } 
             else if (val === '急診機動 (20點/時)') { sections.mobile.classList.remove('hidden'); sections.mobile.querySelectorAll('input[type="radio"]').forEach(r => r.required = true); }
+
+            if (val !== '第二人力 (20點/時)') {
+                applyGeneralShiftHours();
+            }
+
             checkNotesRequired();
         });
 
@@ -473,18 +552,27 @@
             document.getElementById('hours').value = '4'; 
             hideAllSections(); document.getElementById('categoryDescBox').classList.add('hidden'); checkNotesRequired();
             if (keepEmpId && currentEmpId) { empIdInput.value = currentEmpId; empIdInput.dispatchEvent(new Event('input')); } 
-            else { nameDisplayBox.classList.add('hidden'); isEmpValid = false; adminLinkBtn.classList.add('hidden'); }
+            else { nameDisplayBox.classList.add('hidden'); isEmpValid = false; adminLinkBtn.classList.add('hidden'); refreshCacheBtn.classList.add('hidden'); }
         }
 
-        // ================= ★ 申報資料送出邏輯 (加入超時改判) =================
-        let pendingSubmitData = null; 
-        document.getElementById('kpiForm').addEventListener('submit', function(e) {
+        // =========================================================================
+        // ★ 申報資料送出邏輯（改為等待後端真正回應，確保「顯示成功=真的成功」）
+        // 搭配自動重試機制 + 載入動畫，降低卡頓時的不安感；
+        // 萬一真的失敗，表單資料不會被清空，同事可直接再按一次送出。
+        // =========================================================================
+        document.getElementById('kpiForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!isEmployeeDataLoaded) return alert('員工資料尚未載入完成，請稍候。');
             if (!isEmpValid) { empIdInput.focus(); empError.classList.remove('hidden'); return; }
             const formData = new FormData(this);
             if (!formData.get('workDate')) { alert('請點擊「當日」按鈕或手動選擇申報日期！'); return; }
-            if (parseFloat(hoursInput.value) <= 0 || isNaN(parseFloat(hoursInput.value))) { hoursInput.focus(); return; }
+
+            // ★ 時數格式與上限檢查
+            const hoursVal = parseFloat(hoursInput.value);
+            if (isNaN(hoursVal) || hoursVal <= 0) { hoursInput.focus(); alert('請輸入有效的申報時數！'); return; }
+            if (hoursVal % 0.5 !== 0) { hoursInput.focus(); alert('申報時數請以 0.5 為單位！'); return; }
+            if (hoursVal > MAX_HOURS_PER_SUBMIT) { hoursInput.focus(); alert(`單筆申報時數不可超過 ${MAX_HOURS_PER_SUBMIT} 小時，請確認您的申報內容！`); return; }
+
             if (!getSelectedShift()) return alert('請選擇申報班別！');
 
             const categoryValue = formData.get('category');
@@ -492,94 +580,39 @@
             if (categoryValue === '第二人力 (20點/時)') { const checkedRadio = document.querySelector('input[name="secondManpowerArea"]:checked'); supportAreaValue = checkedRadio ? checkedRadio.value : ''; } 
             else if (categoryValue === '支援 (20點/時)') { supportAreaValue = document.getElementById('supportArea').value; }
             
-            pendingSubmitData = {
-                action: 'submit', forceSubmit: false,
+            const payload = {
+                action: 'submit',
                 data: { workDate: formData.get('workDate'), workShift: getSelectedShift(), empId: formData.get('empId').toUpperCase(), empName: employeeData[formData.get('empId').toUpperCase()].name, category: categoryValue, hours: formData.get('hours'), trainingArea: formData.get('trainingArea'), supportArea: supportAreaValue, taskSource: formData.get('taskSource'), shift: formData.get('shift'), notes: formData.get('notes') }
             };
-            sendDataToBackend(pendingSubmitData);
-        });
-
-        async function sendDataToBackend(payload) {
-            const submitBtn = document.getElementById('submitBtn'); 
-            submitBtn.disabled = true; 
-            submitBtn.innerText = '資料傳送中...'; 
-            submitBtn.classList.replace('theme-primary', 'bg-[#b8c9c3]');
-
-            // 前端自製複合鍵條碼，準備給「隱形查詢」使用
-            const d = payload.data;
-            const compositeKey = `${String(d.empId).trim()}_${String(d.workDate).trim()}_${String(d.workShift).trim()}_${String(d.category).trim()}`;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<svg class="spin-icon w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>送出中，請稍候...';
 
             try {
-                // 1. 本來要送出的請求
-                const fetchPromise = fetch(GOOGLE_SCRIPT_URL, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify(payload) 
-                }).then(res => res.json());
+                const response = await fetchWithAutoRetry(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                }, {
+                    maxRetries: 1,
+                    onRetry: () => { submitBtn.innerHTML = '<svg class="spin-icon w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>連線忙線中，正在自動重試...'; }
+                });
+                const result = await response.json();
 
-                // 2. 建立一個 3 秒超時地雷 (Timeout Race)
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 3000));
-
-                // ★ 開始賽跑！如果 3 秒內成功，就會直接走到下一行
-                const data = await Promise.race([fetchPromise, timeoutPromise]);
-                
-                handleBackendResponse(data);
-
-            } catch (error) { 
-                // ★ 如果等了 3 秒爆掉了，就會跳進這個冷啟動保護機制
-                if (error.message === 'TIMEOUT') {
-                    submitBtn.innerText = '系統正在確認資料狀態...';
-                    
-                    // 多給 GAS 伺服器 3 秒鐘去把剛剛卡住的資料寫完
-                    await new Promise(resolve => setTimeout(resolve, 3000));
-
-                    try {
-                        // 背景的幽靈重試 (Silent Retry)
-                        const checkRes = await fetch(GOOGLE_SCRIPT_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify({ action: 'check_status', compositeKey: compositeKey })
-                        }).then(res => res.json());
-
-                        if (checkRes.success && checkRes.exists) {
-                            // 情況 A：找到了！偷偷變臉顯示成功
-                            document.getElementById('duplicateModal').classList.add('hidden'); 
-                            document.getElementById('successModal').classList.remove('hidden'); 
-                        } else {
-                            // 情況 B：沒找到，才通知失敗
-                            alert('⚠️ 網路不穩導致送出失敗，請再按一次送出。');
-                        }
-                    } catch (checkErr) {
-                        alert('⚠️ 網路不穩導致送出失敗，請再按一次送出。');
-                    }
+                if (result.success) {
+                    document.getElementById('successModal').classList.remove('hidden');
                 } else {
-                    alert('伺服器無回應，請重新整理確認。'); 
+                    alert('申報失敗：' + result.message + '\n\n請確認資料無誤後，可直接再次點擊送出。');
                 }
-            } finally { 
-                submitBtn.disabled = false; 
-                submitBtn.innerText = '送出申報'; 
-                submitBtn.classList.replace('bg-[#b8c9c3]', 'theme-primary'); 
+            } catch (error) {
+                alert('網路連線異常（已自動重試過仍失敗），申報尚未送出成功。\n\n您填寫的資料已保留，請確認網路狀況後再次點擊送出。');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
             }
-        }
-
-        // 把原本的判斷抽出來成獨立函數，方便程式碼乾淨
-        function handleBackendResponse(data) {
-            if (data.success) { 
-                document.getElementById('duplicateModal').classList.add('hidden'); 
-                document.getElementById('successModal').classList.remove('hidden'); 
-            } else if (data.requireConfirmation) { 
-                document.getElementById('duplicateMessageText').innerHTML = data.message + "<br><br>若這是不同時段的支援，請點擊「強制送出」；若為選錯日期，請點擊「返回修改」。";
-                document.getElementById('forceSubmitBtn').classList.remove('hidden');
-                document.getElementById('duplicateModal').classList.remove('hidden'); 
-            } else {
-                document.getElementById('duplicateMessageText').innerHTML = data.message;
-                document.getElementById('forceSubmitBtn').classList.add('hidden'); 
-                document.getElementById('duplicateModal').classList.remove('hidden'); 
-            }
-        }
-
-        function closeDuplicateModal() { document.getElementById('duplicateModal').classList.add('hidden'); pendingSubmitData = null; }
-        function executeForceSubmit() { if (pendingSubmitData) { pendingSubmitData.forceSubmit = true; sendDataToBackend(pendingSubmitData); document.getElementById('duplicateModal').classList.add('hidden'); } }
+        });
 
         // ================= ★ 雙軌查詢系統邏輯 =================
         const queryEmpIdInput = document.getElementById('queryEmpId');
@@ -625,9 +658,12 @@
             btn.disabled = true; btn.innerText = '安全驗證並讀取資料中...'; btn.classList.add('opacity-70');
 
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { 
+                const response = await fetchWithAutoRetry(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ action: 'query_instant', empId: empId, month: month, password: pwd }) 
+                }, {
+                    maxRetries: 1,
+                    onRetry: () => { btn.innerText = '連線忙線中，正在自動重試...'; }
                 });
                 const result = await response.json();
                 
@@ -637,13 +673,18 @@
                         rowsHtml = '<tr><td colspan="5" style="padding:15px;text-align:center;color:#666;">本月目前無申報紀錄</td></tr>';
                     } else {
                         result.data.forEach(item => {
+                            const isDup = item.note.includes('重複申報');
+                            const trStyle = isDup ? 'background-color: #fffbeb; border-bottom: 1px solid #eef2f0;' : 'border-bottom: 1px solid #eef2f0; transition: background-color 0.2s;';
+                            
                             rowsHtml += `
-                                <tr style="border-bottom: 1px solid #eef2f0; transition: background-color 0.2s;">
+                                <tr style="${trStyle}">
                                     <td style="padding: 12px 10px; color: #4a5568;">${item.date}</td>
                                     <td style="padding: 12px 10px; color: #2d4a41; font-weight: 500;">${item.shift}</td>
                                     <td style="padding: 12px 10px; color: #2d4a41;">${item.category}</td>
                                     <td style="padding: 12px 10px; color: #528a7a; font-weight: bold;">${item.hours}</td>
-                                    <td style="padding: 12px 10px; color: #718096; font-size: 13px; max-width: 250px;">${item.note}</td>
+                                    <td style="padding: 12px 10px; color: ${isDup ? '#c95d5d' : '#718096'}; font-size: 13px; max-width: 250px;">
+                                        ${isDup ? '<b>' + item.note + '</b>' : item.note}
+                                    </td>
                                 </tr>
                             `;
                         });
@@ -709,7 +750,7 @@
                     } else { alert('⚠️ 開啟失敗：新視窗被瀏覽器阻擋了！請在網址列允許本網站顯示彈出式視窗。'); }
                     
                 } else { alert('查詢失敗：' + result.message); }
-            } catch (error) { alert('網路錯誤請稍後再試。'); } 
+            } catch (error) { alert('網路連線異常（已自動重試過），請稍後再試一次。'); } 
             finally { btn.disabled = false; btn.innerText = originalText; btn.classList.remove('opacity-70'); }
         }
 
@@ -726,12 +767,15 @@
             btn.disabled = true; btn.innerText = '系統寄信中...'; btn.classList.add('opacity-70');
 
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { 
+                const response = await fetchWithAutoRetry(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', body: JSON.stringify({ action: 'query_email', empId: empId, month: month }) 
+                }, {
+                    maxRetries: 1,
+                    onRetry: () => { btn.innerText = '連線忙線中，正在自動重試...'; }
                 });
                 const result = await response.json();
                 if (result.success) { alert(result.message); closeQueryModal(); } else { alert('寄信失敗：' + result.message); }
-            } catch (error) { alert('網路錯誤請稍後再試。'); } 
+            } catch (error) { alert('網路連線異常（已自動重試過），請稍後再試一次。'); } 
             finally { btn.disabled = false; btn.innerText = originalText; btn.classList.remove('opacity-70'); }
         }
     </script>
