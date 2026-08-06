@@ -29,7 +29,6 @@
         
         input[type="date"]:disabled { background-color: #f8faf9; color: #a0aec0; cursor: not-allowed; }
 
-        /* ★ 新增：送出中的載入動畫 */
         .spin-icon { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         button:disabled { opacity: 0.7; cursor: not-allowed; }
@@ -37,10 +36,40 @@
 </head>
 <body class="theme-bg p-4 md:p-8 min-h-screen text-[#4a5568]">
 
+    <!-- ★ 新增：全域共用的公版機房建議清單 (Datalist) -->
+    <datalist id="areaSuggestions">
+        <option value="病房(2FR1)"></option>
+        <option value="BMD"></option>
+        <option value="2FR4"></option>
+        <option value="2FR6"></option>
+        <option value="2FR3(SPECIAL)"></option>
+        <option value="2FR5(IVP)"></option>
+        <option value="1FR2"></option>
+        <option value="1FR3"></option>
+        <option value="1FR4"></option>
+        <option value="ER X-RAY(急診X光)"></option>
+        <option value="ER P(急診P)"></option>
+        <option value="ERCT"></option>
+        <option value="RCT"></option>
+        <option value="GECT"></option>
+        <option value="FCT"></option>
+        <option value="ASRCT"></option>
+        <option value="MA1"></option>
+        <option value="MA2"></option>
+        <option value="MA3"></option>
+        <option value="MR1"></option>
+        <option value="MR2"></option>
+        <option value="MR3"></option>
+        <option value="ANGIO"></option>
+        <option value="SONO"></option>
+        <option value="QC"></option>
+    </datalist>
+
     <div class="max-w-4xl mx-auto theme-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eef2f0] overflow-hidden p-6 md:p-10 flex flex-col relative">
         
+        <!-- ★ 版本序號更新 -->
         <div class="absolute top-4 right-6 text-[11px] text-gray-400 font-mono tracking-wider">
-            20260805003版
+            20260806001版
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 border-b border-gray-100 pb-4 gap-3 mt-4 sm:mt-0">
@@ -131,14 +160,17 @@
                 </div>
 
                 <div>
+                    <!-- ★ 更新：加入 list="areaSuggestions" 綁定公版機房建議清單 -->
                     <div id="section-training" class="dynamic-section hidden bg-[#f8faf9] p-4 rounded-xl border border-[#eef2f0] shadow-sm">
                         <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫訓練區域 <span class="text-[#c95d5d]">*</span></label>
-                        <input type="text" id="trainingArea" name="trainingArea" placeholder="輸入區域 (英文將自動轉大寫)" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+                        <input type="text" id="trainingArea" name="trainingArea" list="areaSuggestions" placeholder="輸入區域 (如: 1FR2，可輸入首字快選)" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
                     </div>
+                    
                     <div id="section-support" class="dynamic-section hidden bg-[#f8faf9] p-4 rounded-xl border border-[#eef2f0] shadow-sm">
                         <div id="supportTextBlock">
                             <label class="block text-sm font-medium theme-text-sub mb-1.5">請填寫支援區域 <span class="text-[#c95d5d]">*</span></label>
-                            <input type="text" id="supportArea" placeholder="輸入區域 (英文將自動轉大寫)" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
+                            <!-- ★ 更新：加入 list="areaSuggestions" 綁定公版機房建議清單 -->
+                            <input type="text" id="supportArea" list="areaSuggestions" placeholder="輸入區域 (如: 1FR2，可輸入首字快選)" class="w-full border theme-input-border rounded-xl px-4 py-2.5 outline-none theme-ring bg-white">
                         </div>
                         <div id="secondManpowerBlock" class="hidden">
                             <label class="block text-sm font-medium theme-text-sub mb-2">請選擇支援機房 <span class="text-[#c95d5d]">*</span></label>
@@ -150,6 +182,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     <div id="section-official" class="dynamic-section hidden bg-[#f8faf9] p-4 rounded-xl border border-[#eef2f0] shadow-sm">
                         <label class="block text-sm font-medium theme-text-sub mb-3">任務來源 <span class="text-[#c95d5d]">*</span></label>
                         <div class="flex space-x-8">
@@ -263,13 +296,25 @@
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw9b4zjW7o2AEA_URJaqbAS_hkzUei5UMNLVyEq0gReVTwM7YKPpJos7KG7j5xky21taQ/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyATxktr1CD3U7mxH1B9C0dJjK5iw0flVZWdzZwZVunDDOZsG22gOrLED45DLGHSoM_A/exec';
         const EMPLOYEE_API_URL = 'https://script.google.com/macros/s/AKfycbwJoKEynFyNUCYCM8BPRvFBrG87ASNciYH6UGB01KVS_3zK5ZTL1z_lzwPaslfxmZdF/exec';
-        const MAX_HOURS_PER_SUBMIT = 12; // ★ 與後端保持一致的單筆時數上限
+        const MAX_HOURS_PER_SUBMIT = 12;
 
-        // =========================================================================
-        // ★ 網路請求「自動重試」安全網
-        // =========================================================================
+        function generateRequestId() {
+            if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+                return crypto.randomUUID();
+            }
+            return 'req-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+        }
+
+        function warmupBackend() {
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'warmup' })
+            }).catch(() => { });
+        }
+
         async function fetchWithAutoRetry(url, options, config = {}) {
             const maxRetries = config.maxRetries ?? 1;
             const retryDelayMs = config.retryDelayMs ?? 800;
@@ -296,9 +341,6 @@
             throw lastError;
         }
 
-        // =========================================================================
-        // ★ 前端月曆動態鎖定演算法
-        // =========================================================================
         function setDateRestrictions() {
             const dateInput = document.getElementById('workDate');
             const t = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Taipei"}));
@@ -368,6 +410,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => { 
+            warmupBackend(); 
             initDefaultMonth(); 
             setDateRestrictions(); 
             await Promise.all([loadEmployeeData(), loadConfig()]); 
@@ -379,15 +422,10 @@
             "支援 (20點/時)": "支援非雙人作業機房點值補充。", "行政公務 (20點/時)": "行政公務點值補充；可選擇【自行申請】。",
             "教學公務 (20點/時)": "教學公務點值補充；可選擇【自行申請】。", "急診機動 (20點/時)": "急診區4人以上作業時填報點值補充。"
         };
-
-        const hoursAutoRules = { 
-            "病房": { "AM": 2, "PM": 2 }, 
-            "ASRCT": { "AM": 3, "PM": 4, "B": 7, "D": 7, "10-12": 1, "10-17": 5 }, 
-            "MR1": { "AM": 2, "PM": 1.5, "B": 3.5, "17-21": 2, "8-21": 5.5, "G": 3.5 } 
-        };
+        const hoursAutoRules = { "病房": { "AM": 2, "PM": 2 }, "ASRCT": { "AM": 3, "PM": 4, "B": 7, "D": 7, "10-12": 1, "10-17": 5 }, "MR1": { "AM": 2, "PM": 1.5, "B": 3.5, "17-21": 2, "8-21": 5.5, "G": 3.5 } };
 
         const generalShiftHoursMap = {
-            "AM": 4, "PM": 4, "17-21": 4, "8-21": 4, "B": 8, "D": 8, "G": 4,
+            "AM": 4, "PM": 4, "17-21": 4, "8-21": 4, "B": 8, "D": 7, "G": 4,
             "10-12": 2, "10-17": 6, "E": 8, "9-18": 7, "16-17": 1
         };
 
@@ -443,7 +481,6 @@
             }
         }
 
-        // ★ 更新：時數即時檢查加入「上限 12 小時」的判斷
         const hoursInput = document.getElementById('hours');
         hoursInput.addEventListener('input', function() {
             const val = parseFloat(this.value);
@@ -461,7 +498,7 @@
             if (isNaN(val)) val = 0; 
             val = Math.round((val + delta) * 10) / 10; 
             if (val < 0.5) val = 0.5; 
-            if (val > MAX_HOURS_PER_SUBMIT) val = MAX_HOURS_PER_SUBMIT; // ★ 新增：上限保護
+            if (val > MAX_HOURS_PER_SUBMIT) val = MAX_HOURS_PER_SUBMIT;
             hoursInput.value = val; 
             hoursInput.dispatchEvent(new Event('input')); 
         }
@@ -471,6 +508,8 @@
         const sections = { training: document.getElementById('section-training'), support: document.getElementById('section-support'), official: document.getElementById('section-official'), mobile: document.getElementById('section-mobile') };
         const supportTextBlock = document.getElementById('supportTextBlock'), secondManpowerBlock = document.getElementById('secondManpowerBlock'), supportAreaInput = document.getElementById('supportArea');
         const secondManpowerRadios = document.querySelectorAll('input[name="secondManpowerArea"]');
+        
+        // ★ 保留將英文自動轉大寫的功能，因為公版有機房英文代號
         document.getElementById('trainingArea').addEventListener('input', e => e.target.value = e.target.value.toUpperCase());
         supportAreaInput.addEventListener('input', e => e.target.value = e.target.value.toUpperCase());
 
@@ -555,11 +594,6 @@
             else { nameDisplayBox.classList.add('hidden'); isEmpValid = false; adminLinkBtn.classList.add('hidden'); refreshCacheBtn.classList.add('hidden'); }
         }
 
-        // =========================================================================
-        // ★ 申報資料送出邏輯（改為等待後端真正回應，確保「顯示成功=真的成功」）
-        // 搭配自動重試機制 + 載入動畫，降低卡頓時的不安感；
-        // 萬一真的失敗，表單資料不會被清空，同事可直接再按一次送出。
-        // =========================================================================
         document.getElementById('kpiForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!isEmployeeDataLoaded) return alert('員工資料尚未載入完成，請稍候。');
@@ -567,7 +601,6 @@
             const formData = new FormData(this);
             if (!formData.get('workDate')) { alert('請點擊「當日」按鈕或手動選擇申報日期！'); return; }
 
-            // ★ 時數格式與上限檢查
             const hoursVal = parseFloat(hoursInput.value);
             if (isNaN(hoursVal) || hoursVal <= 0) { hoursInput.focus(); alert('請輸入有效的申報時數！'); return; }
             if (hoursVal % 0.5 !== 0) { hoursInput.focus(); alert('申報時數請以 0.5 為單位！'); return; }
@@ -582,6 +615,7 @@
             
             const payload = {
                 action: 'submit',
+                requestId: generateRequestId(), 
                 data: { workDate: formData.get('workDate'), workShift: getSelectedShift(), empId: formData.get('empId').toUpperCase(), empName: employeeData[formData.get('empId').toUpperCase()].name, category: categoryValue, hours: formData.get('hours'), trainingArea: formData.get('trainingArea'), supportArea: supportAreaValue, taskSource: formData.get('taskSource'), shift: formData.get('shift'), notes: formData.get('notes') }
             };
             
@@ -614,7 +648,6 @@
             }
         });
 
-        // ================= ★ 雙軌查詢系統邏輯 =================
         const queryEmpIdInput = document.getElementById('queryEmpId');
         queryEmpIdInput.addEventListener('input', function() {
             let id = this.value.trim().toUpperCase(); this.value = id;
@@ -661,9 +694,6 @@
                 const response = await fetchWithAutoRetry(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ action: 'query_instant', empId: empId, month: month, password: pwd }) 
-                }, {
-                    maxRetries: 1,
-                    onRetry: () => { btn.innerText = '連線忙線中，正在自動重試...'; }
                 });
                 const result = await response.json();
                 
